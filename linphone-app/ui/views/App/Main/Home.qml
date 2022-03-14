@@ -53,6 +53,7 @@ Rectangle {
         $view: 'InviteFriends'
         $icon: 'home_invite_friends'
         $title: qsTr('inviteTitle')
+		$colorNormal: 'blue'
       }
 
       ListElement {
@@ -62,6 +63,7 @@ Rectangle {
         $icon: 'home_account_assistant'
         $title: qsTr('accountAssistantTitle')
         $view: 'Assistant'
+		$colorNormal: '#FE5E00'
       }
     }
 
@@ -78,6 +80,7 @@ Rectangle {
 
           TextButtonB {
             text: $componentText
+			colorNormal: $colorNormal
             onClicked: window.setView($view)
           }
         }
