@@ -46,25 +46,6 @@ Rectangle {
       //   $title: qsTr('howToTitle')
       // }
 
-      ListElement {
-        $component: 'button'
-        $componentText: qsTr('inviteButton')
-        $description: qsTr('inviteDescription')
-        $view: 'InviteFriends'
-        $icon: 'home_invite_friends'
-        $title: qsTr('inviteTitle')
-		$colorNormal: 'blue'
-      }
-
-      ListElement {
-        $component: 'button'
-        $componentText: qsTr('assistantButton')
-        $description: qsTr('accountAssistantDescription')
-        $icon: 'home_account_assistant'
-        $title: qsTr('accountAssistantTitle')
-        $view: 'Assistant'
-		$colorNormal: '#FE5E00'
-      }
     }
 
     delegate: CardBlock {
