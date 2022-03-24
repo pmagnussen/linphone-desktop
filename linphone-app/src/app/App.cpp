@@ -301,10 +301,10 @@ void App::initContentApp () {
 		setFetchConfig(mParser);
 		setOpened(false);
 		qInfo() << QStringLiteral("Restarting app...");
+		
 		delete mEngine;
 		
 		mNotifier = nullptr;
-		mSystemTrayIcon = nullptr;
 		//
 		CoreManager::uninit();
 		removeTranslator(mTranslator);
@@ -373,6 +373,7 @@ void App::initContentApp () {
 	mEngine->addImageProvider(ThumbnailProvider::ProviderId, new ThumbnailProvider());
 	
 	mEngine->rootContext()->setContextProperty("applicationName", APPLICATION_NAME);
+
 #ifdef APPLICATION_URL
 	mEngine->rootContext()->setContextProperty("applicationUrl", APPLICATION_URL);
 #else
@@ -495,6 +496,9 @@ bool App::hasFocus () const {
 }
 void App::stateChanged(Qt::ApplicationState pState) {
 	DesktopTools::applicationStateChanged(pState);
+	auto core = CoreManager::getInstance();
+	if(core)
+		core->stateChanged(pState);
 }
 // -----------------------------------------------------------------------------
 
@@ -532,6 +536,14 @@ static inline void registerSharedSingletonType (const char *name) {
 	qmlRegisterSingletonType<T>(Constants::MainQmlUri, 1, 0, name, makeSharedSingleton<T, function>);
 }
 
+template<typename T, T *(CoreManager::*function)()>
+static QObject *makeSharedSingleton (QQmlEngine *, QJSEngine *) {
+	QObject *object = (CoreManager::getInstance()->*function)();
+	QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
+	return object;
+}
+
+
 template<typename T, T *(CoreManager::*function)() const>
 static QObject *makeSharedSingleton (QQmlEngine *, QJSEngine *) {
 	QObject *object = (CoreManager::getInstance()->*function)();
@@ -540,6 +552,11 @@ static QObject *makeSharedSingleton (QQmlEngine *, QJSEngine *) {
 }
 
 template<typename T, T *(CoreManager::*function)() const>
+static inline void registerSharedSingletonType (const char *name) {
+	qmlRegisterSingletonType<T>(Constants::MainQmlUri, 1, 0, name, makeSharedSingleton<T, function>);
+}
+
+template<typename T, T *(CoreManager::*function)()>
 static inline void registerSharedSingletonType (const char *name) {
 	qmlRegisterSingletonType<T>(Constants::MainQmlUri, 1, 0, name, makeSharedSingleton<T, function>);
 }
@@ -607,6 +624,7 @@ void App::registerTypes () {
 	registerType<ConferenceModel>("ConferenceModel");
 	registerType<ContactsListProxyModel>("ContactsListProxyModel");
 	registerType<ContactsImporterListProxyModel>("ContactsImporterListProxyModel");
+	registerType<ContentProxyModel>("ContentProxyModel");
 	registerType<FileDownloader>("FileDownloader");
 	registerType<FileExtractor>("FileExtractor");
 	registerType<HistoryProxyModel>("HistoryProxyModel");
@@ -644,8 +662,10 @@ void App::registerTypes () {
 	registerUncreatableType<ContactModel>("ContactModel");
 	registerUncreatableType<ContactsImporterModel>("ContactsImporterModel");
 	registerUncreatableType<ContentModel>("ContentModel");
+	registerUncreatableType<ContentListModel>("ContentListModel");
 	registerUncreatableType<HistoryModel>("HistoryModel");
 	registerUncreatableType<LdapModel>("LdapModel");
+	registerUncreatableType<RecorderModel>("RecorderModel");
 	registerUncreatableType<SearchResultModel>("SearchResultModel");
 	registerUncreatableType<SipAddressObserver>("SipAddressObserver");	
 	registerUncreatableType<VcardModel>("VcardModel");
@@ -679,6 +699,7 @@ void App::registerSharedTypes () {
 	registerSharedSingletonType<ContactsImporterListModel, &CoreManager::getContactsImporterListModel>("ContactsImporterListModel");
 	registerSharedSingletonType<LdapListModel, &CoreManager::getLdapListModel>("LdapListModel");
 	registerSharedSingletonType<TimelineListModel, &CoreManager::getTimelineListModel>("TimelineListModel");
+	registerSharedSingletonType<RecorderManager, &CoreManager::getRecorderManager>("RecorderManager");
 	
 	//qmlRegisterSingletonType<ColorListModel>(Constants::MainQmlUri, 1, 0, "ColorList", mColorListModel);
 	
@@ -707,12 +728,17 @@ void App::registerSharedToolTypes () {
 
 void App::setTrayIcon () {
 	QQuickWindow *root = getMainWindow();
-	QSystemTrayIcon *systemTrayIcon = new QSystemTrayIcon(mEngine);
-	
+	QSystemTrayIcon* systemTrayIcon = (mSystemTrayIcon?mSystemTrayIcon : new QSystemTrayIcon(nullptr));// Workaround : QSystemTrayIcon cannot be deleted because of setContextMenu (indirectly)
+		
 	// trayIcon: Right click actions.
 	QAction *settingsAction = new QAction(tr("settings"), root);
 	root->connect(settingsAction, &QAction::triggered, root, [this] {
 		App::smartShowWindow(getSettingsWindow());
+	});
+	
+	QAction *updateCheckAction = new QAction(tr("checkForUpdates"), root);
+	root->connect(updateCheckAction, &QAction::triggered, root, [this] {
+		checkForUpdates(true);
 	});
 	
 	QAction *aboutAction = new QAction(tr("about"), root);
@@ -733,7 +759,7 @@ void App::setTrayIcon () {
 	root->connect(quitAction, &QAction::triggered, this, &App::quit);
 	
 	// trayIcon: Left click actions.
-	QMenu *menu = new QMenu();
+	static QMenu *menu = new QMenu();// Static : Workaround about a bug with setContextMenu where it cannot be called more than once.
 	root->connect(systemTrayIcon, &QSystemTrayIcon::activated, [root](
 				  QSystemTrayIcon::ActivationReason reason
 				  ) {
@@ -747,17 +773,19 @@ void App::setTrayIcon () {
 	menu->setTitle(APPLICATION_NAME);
 	// Build trayIcon menu.
 	menu->addAction(settingsAction);
+	menu->addAction(updateCheckAction);
 	menu->addAction(aboutAction);
 	menu->addSeparator();
 	menu->addAction(restoreAction);
 	menu->addSeparator();
 	menu->addAction(quitAction);
-	
-	systemTrayIcon->setContextMenu(menu);
+	if(!mSystemTrayIcon)
+		systemTrayIcon->setContextMenu(menu);// This is a Qt bug. We cannot call setContextMenu more than once. So we have to keep an instance of the menu.
 	systemTrayIcon->setIcon(QIcon(Constants::WindowIconPath));
 	systemTrayIcon->setToolTip(APPLICATION_NAME);
 	systemTrayIcon->show();
-	mSystemTrayIcon = systemTrayIcon;
+	if(!mSystemTrayIcon)
+		mSystemTrayIcon = systemTrayIcon;
 	if(!QSystemTrayIcon::isSystemTrayAvailable())
 		qInfo() << "System tray is not available";
 }

@@ -30,6 +30,12 @@
 		<file>assets/images/cancel_custom.svg</file>
 		<file>assets/images/chat_custom.svg</file>
 		<file>assets/images/chat_amount.svg</file>
+		<file>assets/images/chat_audio_pause_custom.svg</file>
+		<file>assets/images/chat_audio_play_custom.svg</file>
+		<file>assets/images/chat_audio_soundwave_custom.svg</file>
+		<file>assets/images/chat_audio_preview_pause_custom.svg</file>
+		<file>assets/images/chat_audio_preview_play_custom.svg</file>
+		<file>assets/images/chat_audio_preview_stop_custom.svg</file>
 		<file>assets/images/chat_count.svg</file>
 		<file>assets/images/chat_delivered.svg</file>
 		<file>assets/images/chat_error.svg</file>
@@ -82,6 +88,8 @@
 		<file>assets/images/led_red.svg</file>
 		<file>assets/images/led_white.svg</file>
 		<file>assets/images/menu_copy_text_custom.svg</file>
+		<file>assets/images/menu_reply_custom.svg</file>
+		<file>assets/images/menu_forward_custom.svg</file>
 		<file>assets/images/menu_imdn_info_custom.svg</file>
 		<file>assets/images/menu_vdots_custom.svg</file>
 		<file>assets/images/menu_info_custom.svg</file>
@@ -92,6 +100,7 @@
 		<file>assets/images/micro_on_custom.svg</file>
 		<file>assets/images/missed_incoming_call_custom.svg</file>
 		<file>assets/images/missed_outgoing_call_custom.svg</file>
+		<file>assets/images/move_to_bottom_custom.svg</file>
 		<file>assets/images/new_call_custom.svg</file>
 		<file>assets/images/new_chat_group_custom.svg</file>
 		<file>assets/images/new_conference_custom.svg</file>
@@ -134,7 +143,7 @@
 		<file>assets/images/tooltip_arrow_right_custom.svg</file>
 		<file>assets/images/tooltip_arrow_top_custom.svg</file>
 		<file>assets/images/transfer_custom.svg</file>
-		<file>assets/images/update_sign.svg</file>		
+		<file>assets/images/update_sign.svg</file>
 		<file>assets/images/video_call_accept_custom.svg</file>
 		<file>assets/images/video_call_custom.svg</file>
 		<file>assets/images/warning.svg</file>
@@ -191,6 +200,7 @@
 		<file>ui/modules/Common/Helpers/InvertedMouseArea.qml</file>
 		<file>ui/modules/Common/Image/Icon.qml</file>
 		<file>ui/modules/Common/Image/RoundedImage.qml</file>
+		<file>ui/modules/Common/Indicators/MediaProgressBar.qml</file>
 		<file>ui/modules/Common/Indicators/VuMeter.qml</file>
 		<file>ui/modules/Common/Menus/ApplicationMenuEntry.qml</file>
 		<file>ui/modules/Common/Menus/ApplicationMenu.qml</file>
@@ -236,6 +246,7 @@
 		<file>ui/modules/Common/Styles/Form/Tab/TabButtonStyle.qml</file>
 		<file>ui/modules/Common/Styles/Form/Tab/TabContainerStyle.qml</file>
 		<file>ui/modules/Common/Styles/Form/TransparentTextInputStyle.qml</file>
+		<file>ui/modules/Common/Styles/Indicators/MediaProgressBarStyle.qml</file>
 		<file>ui/modules/Common/Styles/Indicators/VuMeterStyle.qml</file>
 		<file>ui/modules/Common/Styles/Menus/ApplicationMenuStyle.qml</file>
 		<file>ui/modules/Common/Styles/Menus/DropDownStaticMenuStyle.qml</file>
@@ -266,10 +277,19 @@
 		<file>ui/modules/Linphone/Calls/ConferenceControls.qml</file>
 		<file>ui/modules/Linphone/Chat/Chat.js</file>
 		<file>ui/modules/Linphone/Chat/Chat.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatContent.qml</file>
 		<file>ui/modules/Linphone/Chat/ChatDeliveries.qml</file>
 		<file>ui/modules/Linphone/Chat/ChatMenu.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatAudioMessage.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatAudioPreview.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatFileMessage.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatFilePreview.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatForwardMessage.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatMessagePreview.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatReplyMessage.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatReplyPreview.qml</file>
+		<file>ui/modules/Linphone/Chat/ChatTextMessage.qml</file>
 		<file>ui/modules/Linphone/Chat/Event.qml</file>
-		<file>ui/modules/Linphone/Chat/FileMessage.qml</file>
 		<file>ui/modules/Linphone/Chat/IncomingMessage.qml</file>
 		<file>ui/modules/Linphone/Chat/Message.js</file>
 		<file>ui/modules/Linphone/Chat/Message.qml</file>
@@ -283,6 +303,8 @@
 		<file>ui/modules/Linphone/Contact/ContactMessageCounter.qml</file>
 		<file>ui/modules/Linphone/Contact/Contact.qml</file>
 		<file>ui/modules/Linphone/Dialog/OnlineInstallerDialog.qml</file>
+		<file>ui/modules/Linphone/Dialog/SipAddressDialog.qml</file>
+		<file>ui/modules/Linphone/File/FileView.qml</file>
 		<file>ui/modules/Linphone/History/History.qml</file>
 		<file>ui/modules/Linphone/History/History.js</file>
 		<file>ui/modules/Linphone/History/Event.qml</file>
@@ -307,12 +329,18 @@
 		<file>ui/modules/Linphone/Styles/Calls/CallStatisticsStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Calls/ConferenceControlsStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Chat/ChatStyle.qml</file>
+		<file>ui/modules/Linphone/Styles/Chat/ChatAudioMessageStyle.qml</file>
+		<file>ui/modules/Linphone/Styles/Chat/ChatAudioPreviewStyle.qml</file>
+		<file>ui/modules/Linphone/Styles/Chat/ChatFilePreviewStyle.qml</file>
+		<file>ui/modules/Linphone/Styles/Chat/ChatForwardMessageStyle.qml</file>
+		<file>ui/modules/Linphone/Styles/Chat/ChatReplyMessageStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Codecs/CodecsViewerStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Contact/AvatarStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Contact/ContactDescriptionStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Contact/ContactMessageCounterStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Contact/ContactStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Dialog/OnlineInstallerDialogStyle.qml</file>
+		<file>ui/modules/Linphone/Styles/Dialog/SipAddressDialogStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/History/HistoryStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Menus/SipAddressesMenuStyle.qml</file>
 		<file>ui/modules/Linphone/Styles/Misc/MessageCounterStyle.qml</file>

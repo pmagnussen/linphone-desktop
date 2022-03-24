@@ -56,12 +56,15 @@ public:
 	Q_INVOKABLE ChatRoomModel* createChat (const CallModel * ) const;
 	Q_INVOKABLE bool createSecureChat (const QString& subject, const QString &participantAddress) const;
 	
+	QVariantMap createChatRoom(const QString& subject, const int& securityLevel, std::shared_ptr<linphone::Address> localAddress, const QVariantList& participants, const bool& selectAfterCreation) const;
 	Q_INVOKABLE QVariantMap createChatRoom(const QString& subject, const int& securityLevel, const QVariantList& participants, const bool& selectAfterCreation) const;
 	
 	Q_INVOKABLE int getRunningCallsNumber () const;
 	
 	Q_INVOKABLE void terminateAllCalls () const;
 	Q_INVOKABLE void terminateCall (const QString& sipAddress) const;
+	
+	static std::list<std::shared_ptr<linphone::CallLog>> getCallHistory(const QString& peerAddress, const QString& localAddress);	
 		
 signals:
 	void callRunning (int index, CallModel *callModel);

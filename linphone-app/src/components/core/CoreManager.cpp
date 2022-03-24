@@ -29,6 +29,7 @@
 
 #include "app/paths/Paths.hpp"
 #include "components/calls/CallsListModel.hpp"
+#include "components/chat/ChatModel.hpp"
 #include "components/chat-room/ChatRoomModel.hpp"
 #include "components/chat-room/ChatRoomListModel.hpp"
 #include "components/contact/VcardModel.hpp"
@@ -36,6 +37,7 @@
 #include "components/contacts/ContactsImporterListModel.hpp"
 #include "components/history/HistoryModel.hpp"
 #include "components/ldap/LdapListModel.hpp"
+#include "components/recorder/RecorderManager.hpp"
 #include "components/settings/AccountSettingsModel.hpp"
 #include "components/settings/SettingsModel.hpp"
 #include "components/sip-addresses/SipAddressesModel.hpp"
@@ -74,6 +76,8 @@ CoreManager::CoreManager (QObject *parent, const QString &configPath) :
 	QObject::connect(coreHandlers, &CoreHandlers::coreStarted, this, &CoreManager::initCoreManager, Qt::QueuedConnection);
 	QObject::connect(coreHandlers, &CoreHandlers::coreStopped, this, &CoreManager::stopIterate, Qt::QueuedConnection);
 	QObject::connect(coreHandlers, &CoreHandlers::logsUploadStateChanged, this, &CoreManager::handleLogsUploadStateChanged);
+	QObject::connect(coreHandlers, &CoreHandlers::callLogUpdated, this, &CoreManager::callLogsCountChanged);
+	
 	QTimer::singleShot(10, [this, configPath](){// Delay the creation in order to have the CoreManager instance set before
 		createLinphoneCore(configPath);
 	});
@@ -89,6 +93,7 @@ CoreManager::~CoreManager(){
 
 void CoreManager::initCoreManager(){
 	mCallsListModel = new CallsListModel(this);
+	mChatModel = new ChatModel(this);
 	mChatRoomListModel = new ChatRoomListModel(this);
 	mContactsListModel = new ContactsListModel(this);
 	mContactsImporterListModel = new ContactsImporterListModel(this);
@@ -122,6 +127,14 @@ HistoryModel* CoreManager::getHistoryModel(){
 		emit historyModelCreated(mHistoryModel);
 	}
 	return mHistoryModel;
+}
+
+RecorderManager* CoreManager::getRecorderManager(){
+	if(!mRecorderManager){
+		mRecorderManager = new RecorderManager(this);
+		emit recorderManagerCreated(mRecorderManager);
+	}
+	return mRecorderManager;
 }
 // -----------------------------------------------------------------------------
 
@@ -167,6 +180,15 @@ void CoreManager::forceRefreshRegisters () {
 void CoreManager::updateUnreadMessageCount(){
 	mEventCountNotifier->updateUnreadMessageCount();
 }
+
+void CoreManager::stateChanged(Qt::ApplicationState pState){
+	if(mCbsTimer){
+		if(pState == Qt::ApplicationActive)
+			mCbsTimer->setInterval(	Constants::CbsCallInterval);
+		else
+			mCbsTimer->setInterval(	Constants::CbsCallInterval * 10);
+	}	
+}
 // -----------------------------------------------------------------------------
 
 void CoreManager::sendLogs () const {
@@ -183,6 +205,7 @@ void CoreManager::cleanLogs () const {
 	
 	mCore->resetLogCollection();
 }
+// -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
 
@@ -208,19 +231,26 @@ void CoreManager::setDatabasesPaths () {
 // -----------------------------------------------------------------------------
 
 void CoreManager::setOtherPaths () {
-	mCore->setZrtpSecretsFile(Paths::getZrtpSecretsFilePath());
+	if (mCore->getZrtpSecretsFile().empty() || !Paths::filePathExists(mCore->getZrtpSecretsFile(), true))
+		mCore->setZrtpSecretsFile(Paths::getZrtpSecretsFilePath());// Use application path if Linphone default is not available
 	qInfo() << "Using ZrtpSecrets path : " << QString::fromStdString(mCore->getZrtpSecretsFile());
-	mCore->setUserCertificatesPath(Paths::getUserCertificatesDirPath());
+	if (mCore->getUserCertificatesPath().empty() || !Paths::filePathExists(mCore->getUserCertificatesPath(), true))
+		mCore->setUserCertificatesPath(Paths::getUserCertificatesDirPath());// Use application path if Linphone default is not available
 	qInfo() << "Using UserCertificate path : " << QString::fromStdString(mCore->getUserCertificatesPath());
-	mCore->setRootCa(Paths::getRootCaFilePath());
+	if (mCore->getRootCa().empty() || !Paths::filePathExists(mCore->getRootCa()))
+		mCore->setRootCa(Paths::getRootCaFilePath());// Use application path if Linphone default is not available
 	qInfo() << "Using RootCa path : " << QString::fromStdString(mCore->getRootCa());
 }
 
 void CoreManager::setResourcesPaths () {
 	shared_ptr<linphone::Factory> factory = linphone::Factory::get();
 	factory->setMspluginsDir(Paths::getPackageMsPluginsDirPath());
-	factory->setTopResourcesDir(Paths::getPackageDataDirPath());
+	factory->setTopResourcesDir(Paths::getPackageTopDirPath());
 	factory->setSoundResourcesDir(Paths::getPackageSoundsResourcesDirPath());
+	factory->setDataResourcesDir(Paths::getPackageDataDirPath());
+	factory->setDataDir(Paths::getAppLocalDirPath());
+	factory->setDownloadDir(Paths::getDownloadDirPath());
+	factory->setConfigDir(Paths::getConfigDirPath(true));
 }
 
 // -----------------------------------------------------------------------------
@@ -244,15 +274,6 @@ void CoreManager::createLinphoneCore (const QString &configPath) {
 	mCore->setVideoDisplayFilter("MSQOGL");
 	mCore->usePreviewWindow(true);
 	mCore->enableVideoPreview(false);
-	mCore->setUserAgent(
-				Utils::appStringToCoreString(
-					QStringLiteral(APPLICATION_NAME" Desktop/%1 (%2, Qt %3) LinphoneCore")
-					.arg(QCoreApplication::applicationVersion())
-					.arg(QSysInfo::prettyProductName())
-					.arg(qVersion())
-					),
-				mCore->getVersion()
-				);
 	// Force capture/display.
 	// Useful if the app was built without video support.
 	// (The capture/display attributes are reset by the core in this case.)
@@ -261,14 +282,17 @@ void CoreManager::createLinphoneCore (const QString &configPath) {
 		config->setInt("video", "capture", 1);
 		config->setInt("video", "display", 1);
 	}
-	if(!config->hasEntry("storage", "uri"))
-		config->setString("storage", "uri", Paths::getDatabaseFilePath());
-	if(!config->hasEntry("lime", "x3dh_db_path"))
-		config->setString("lime", "x3dh_db_path", Paths::getLimeDatabasePath());
+	QString userAgent = Utils::computeUserAgent(config);
+	mCore->setUserAgent(Utils::appStringToCoreString(userAgent), mCore->getVersion());
 	mCore->start();
 	setDatabasesPaths();
 	setOtherPaths();
 	mCore->enableFriendListSubscription(true);
+}
+
+void CoreManager::updateUserAgent(){
+	mCore->setUserAgent(Utils::appStringToCoreString(Utils::computeUserAgent(mCore->getConfig())), mCore->getVersion());
+	forceRefreshRegisters(); 	// After setting a new device name, REGISTER need to take account it.
 }
 
 void CoreManager::handleChatRoomCreated(const std::shared_ptr<ChatRoomModel> &chatRoomModel){
@@ -303,13 +327,20 @@ void CoreManager::migrate () {
 		auto params = account->getParams();
 		if( params->getDomain() == Constants::LinphoneDomain) {
 			auto newParams = params->clone();
+			QString accountIdentity = (newParams->getIdentityAddress() ? newParams->getIdentityAddress()->asString().c_str() : "no-identity");
 			if( rcVersion < 1) {
 				newParams->setContactParameters(Constants::DefaultContactParameters);
 				newParams->setExpires(Constants::DefaultExpires);
+				qInfo() << "Migrating " << accountIdentity << " for version 1. contact parameters = " << Constants::DefaultContactParameters << ", expires = " << Constants::DefaultExpires;
 			}
 			if( rcVersion < 2) {
 				newParams->setConferenceFactoryUri(Constants::DefaultConferenceURI);
 				setlimeServerUrl = true;
+				qInfo() << "Migrating " << accountIdentity << " for version 2. conference factory URI = " << Constants::DefaultConferenceURI;
+			}
+			if( rcVersion < 3){
+				newParams->enableCpimInBasicChatRoom(true);
+				qInfo() << "Migrating " << accountIdentity << " for version 3. enable Cpim in basic chat rooms";
 			}
 			account->setParams(newParams);
 		}
@@ -333,6 +364,9 @@ QString CoreManager::getVersion () const {
 
 int CoreManager::getEventCount () const {
 	return mEventCountNotifier ? mEventCountNotifier->getEventCount() : 0;
+}
+int CoreManager::getCallLogsCount() const{
+	return mCore->getCallLogs().size();
 }
 int CoreManager::getMissedCallCount(const QString &peerAddress, const QString &localAddress)const{
 	return mEventCountNotifier ? mEventCountNotifier->getMissedCallCount(peerAddress, localAddress) : 0;
@@ -391,4 +425,11 @@ void CoreManager::setLastRemoteProvisioningState(const linphone::ConfiguringStat
 
 bool CoreManager::isLastRemoteProvisioningGood(){
 	return mLastRemoteProvisioningState != linphone::ConfiguringState::Failed;
+}
+
+QString CoreManager::getUserAgent()const {
+	if(mCore)
+		return Utils::coreStringToAppString(mCore->getUserAgent());
+	else
+		return EXECUTABLE_NAME " Desktop";// Just in case
 }

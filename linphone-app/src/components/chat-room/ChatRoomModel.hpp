@@ -35,6 +35,8 @@ class ParticipantListModel;
 class ChatEvent;
 class ContactModel;
 class ChatRoomModel;
+class ChatMessageModel;
+class ChatNoticeModel;
 
 class ChatRoomModelListener : public QObject, public linphone::ChatRoomListener {
 Q_OBJECT
@@ -95,7 +97,6 @@ signals:
 	void chatMessageShouldBeStored(const std::shared_ptr<linphone::ChatRoom> & chatRoom, const std::shared_ptr<linphone::ChatMessage> & message);
 	void chatMessageParticipantImdnStateChanged(const std::shared_ptr<linphone::ChatRoom> & chatRoom, const std::shared_ptr<linphone::ChatMessage> & message, const std::shared_ptr<const linphone::ParticipantImdnState> & state);
 
-
 };
 
 class ChatRoomModel : public QAbstractListModel {
@@ -117,9 +118,6 @@ public:
 	};
 	Q_ENUM(EntryType)
 	
-	
-	//Q_PROPERTY(QString participants READ getParticipants NOTIFY participantsChanged);
-	//Q_PROPERTY(ParticipantProxyModel participants READ getParticipants NOTIFY participantsChanged);
 	Q_PROPERTY(QString subject READ getSubject WRITE setSubject NOTIFY subjectChanged)
 	Q_PROPERTY(QDateTime lastUpdateTime MEMBER mLastUpdateTime WRITE setLastUpdateTime NOTIFY lastUpdateTimeChanged)
 	Q_PROPERTY(int unreadMessagesCount MEMBER mUnreadMessagesCount WRITE setUnreadMessagesCount NOTIFY unreadMessagesCountChanged)
@@ -133,9 +131,9 @@ public:
 	Q_PROPERTY(bool isMeAdmin READ isMeAdmin NOTIFY isMeAdminChanged)
 	Q_PROPERTY(bool canHandleParticipants READ canHandleParticipants CONSTANT)
 	
-	//Q_PROPERTY(bool isComposing MEMBER mIsRemoteComposing NOTIFY isRemoteComposingChanged)
+	Q_PROPERTY(bool isComposing READ getIsRemoteComposing NOTIFY isRemoteComposingChanged)
 	Q_PROPERTY(QList<QString> composers READ getComposers NOTIFY isRemoteComposingChanged)
-	Q_PROPERTY(bool hasBeenLeft READ hasBeenLeft NOTIFY hasBeenLeftChanged)
+	Q_PROPERTY(bool isReadOnly READ isReadOnly NOTIFY isReadOnlyChanged)
 	
 	Q_PROPERTY(QString sipAddress READ getFullPeerAddress NOTIFY fullPeerAddressChanged)
 	Q_PROPERTY(QString sipAddressUriOnly READ getPeerAddress NOTIFY fullPeerAddressChanged)
@@ -147,12 +145,15 @@ public:
 	Q_PROPERTY(long ephemeralLifetime READ getEphemeralLifetime WRITE setEphemeralLifetime NOTIFY ephemeralLifetimeChanged)
 	Q_PROPERTY(bool ephemeralEnabled READ isEphemeralEnabled WRITE setEphemeralEnabled NOTIFY ephemeralEnabledChanged)
 	Q_PROPERTY(bool canBeEphemeral READ canBeEphemeral NOTIFY canBeEphemeralChanged)
+	Q_PROPERTY(bool markAsReadEnabled READ markAsReadEnabled WRITE enableMarkAsRead NOTIFY markAsReadEnabledChanged)
 	
 	Q_PROPERTY(ParticipantListModel* participants READ getParticipants CONSTANT)
 	
+	Q_PROPERTY(ChatMessageModel * reply READ getReply WRITE setReply NOTIFY replyChanged)
+	
+	Q_PROPERTY(bool entriesLoading READ isEntriesLoading WRITE setEntriesLoading NOTIFY entriesLoadingChanged)
 	
 	
-	//ChatRoomModel (const QString &peerAddress, const QString &localAddress, const bool& isSecure);
 	static std::shared_ptr<ChatRoomModel> create(std::shared_ptr<linphone::ChatRoom> chatRoom);
 	ChatRoomModel (std::shared_ptr<linphone::ChatRoom> chatRoom, QObject * parent = nullptr);
 	~ChatRoomModel ();
@@ -179,11 +180,12 @@ public:
 	QString getAvatar () const;
 	int getPresenceStatus() const;
 	int getState() const;
-	bool hasBeenLeft() const;
+	bool isReadOnly() const;
 	bool isEphemeralEnabled() const;
 	long getEphemeralLifetime() const;
 	bool canBeEphemeral();
 	bool haveEncryption() const;
+	bool markAsReadEnabled() const;
 	Q_INVOKABLE bool isSecure() const;
 	int getSecurityLevel() const;
 	bool isGroupEnabled() const;
@@ -193,33 +195,47 @@ public:
 	bool isCurrentProxy() const;						// Return true if this chat room is Me() is the current proxy
 	bool canHandleParticipants() const;
 	bool getIsRemoteComposing () const;
+	bool isEntriesLoading() const;
+	bool isBasic() const;
 	ParticipantListModel* getParticipants() const;
 	std::shared_ptr<linphone::ChatRoom> getChatRoom();
 	QList<QString> getComposers();
+	QString getParticipantAddress();	// return peerAddress if not secure else return the first participant SIP address.
+	int getAllUnreadCount();	// Return unread messages and missed call.
 		
 //---- Setters
 	void setSubject(QString& subject);
 	void setLastUpdateTime(const QDateTime& lastUpdateDate);
 	void updateLastUpdateTime();
+	void setEntriesLoading(const bool& loading);
 	
 	void setUnreadMessagesCount(const int& count);	
 	void setMissedCallsCount(const int& count);
 	void addMissedCallsCount(std::shared_ptr<linphone::Call> call);
 	void setEphemeralEnabled(bool enabled);
 	void setEphemeralLifetime(long lifetime);
+	void enableMarkAsRead(const bool& enable);
+	
+	void setReply(ChatMessageModel * model);
+	ChatMessageModel * getReply()const;
+	void clearReply();
+	
+	void clearFilesToSend();
 
 // Tools
 	
 	void deleteChatRoom();
 	Q_INVOKABLE void leaveChatRoom ();
 	Q_INVOKABLE void updateParticipants(const QVariantList& participants);		
-	void sendMessage (const QString &message);	
-	void sendFileMessage (const QString &path);
+	void sendMessage (const QString &message);
+	Q_INVOKABLE void forwardMessage(ChatMessageModel * model);
 	void compose ();
-	void resetMessageCount ();
+	Q_INVOKABLE void resetMessageCount ();
 	Q_INVOKABLE void initEntries();
 	Q_INVOKABLE int loadMoreEntries();	// return new entries count
 	void callEnded(std::shared_ptr<linphone::Call> call);
+	void updateNewMessageNotice(const int& count);
+	Q_INVOKABLE int loadTillMessage(ChatMessageModel * message);// Load all entries till message and return its index. -1 if not found.
 	
 	QDateTime mLastUpdateTime;
 	int mUnreadMessagesCount = 0;
@@ -228,6 +244,9 @@ public:
 	
 	bool mDeleteChatRoom = false;	// Use as workaround because of core->deleteChatRoom() that call destructor without takking account of count ref : call it in ChatRoomModel destructor	
 	int mLastEntriesStep = 50;		// Retrieve a part of the history to avoid too much processing
+	int mFirstLastEntriesStep = 10;	// Retrieve a part of the history to avoid too much processing at the init
+	bool mMarkAsReadEnabled = true;
+	bool mEntriesLoading = false;
 	
 	
 	void insertCall (const std::shared_ptr<linphone::CallLog> &callLog);
@@ -274,6 +293,8 @@ public slots:
 	
 signals:
 	bool isRemoteComposingChanged ();
+	void entriesLoadingChanged(const bool& loading);
+	void moreEntriesLoaded(const int& count);
 	
 	void allEntriesRemoved (std::shared_ptr<ChatRoomModel> model);
 	void lastEntryRemoved ();
@@ -299,11 +320,13 @@ signals:
 	void groupEnabledChanged(bool groupEnabled);
 	void isMeAdminChanged();
 	void stateChanged(int state);
-	void hasBeenLeftChanged();
+	void isReadOnlyChanged();
 	void ephemeralEnabledChanged();
 	void ephemeralLifetimeChanged();
 	void canBeEphemeralChanged();
-	void chatRoomDeleted();// Must be connected with DirectConnection mode	
+	void markAsReadEnabledChanged();
+	void chatRoomDeleted();// Must be connected with DirectConnection mode
+	void replyChanged();
 	
 // Chat Room listener callbacks	
 	
@@ -327,7 +350,7 @@ private:
 	//void handleMessageReceived (const std::shared_ptr<linphone::ChatMessage> &message);
 	
 	//bool mIsRemoteComposing = false;
-
+	std::shared_ptr<ChatNoticeModel> mUnreadMessageNotice;
 	QList<std::shared_ptr<ChatEvent> > mEntries;
 	std::shared_ptr<ParticipantListModel> mParticipantListModel;
 	std::shared_ptr<CoreHandlers> mCoreHandlers;
@@ -335,6 +358,8 @@ private:
 	QMap<std::shared_ptr<const linphone::Address>, QString> mComposers;	// Store all addresses that are composing with its username
 	std::shared_ptr<linphone::ChatRoom> mChatRoom;
 	std::shared_ptr<ChatRoomModelListener> mChatRoomModelListener;
+	
+	std::shared_ptr<ChatMessageModel> mReplyModel;
 	
 	std::weak_ptr<ChatRoomModel> mSelf;
 };

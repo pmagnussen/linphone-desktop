@@ -21,6 +21,7 @@
 #include "components/core/CoreManager.hpp"
 #include "components/participant/ParticipantListModel.hpp"
 #include "components/settings/AccountSettingsModel.hpp"
+#include "components/settings/SettingsModel.hpp"
 #include "components/sip-addresses/SipAddressesModel.hpp"
 #include "utils/Utils.hpp"
 
@@ -89,35 +90,25 @@ void TimelineProxyModel::setFilterText(const QString& text){
 bool TimelineProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex &sourceParent) const {
 	const QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
 	auto timeline = sourceModel()->data(index).value<TimelineModel*>();
+	if(!timeline || !timeline->getChatRoomModel())
+		return false;
 	bool show = (mFilterFlags==0);// Show all at 0 (no hide all)
 	bool isGroup = timeline->getChatRoomModel()->isGroupEnabled();
 	bool haveEncryption = timeline->getChatRoomModel()->haveEncryption();
 	bool isEphemeral = timeline->getChatRoomModel()->isEphemeralEnabled();
 	
+	if(!CoreManager::getInstance()->getSettingsModel()->getStandardChatEnabled() && !haveEncryption)
+		return false;
+	if(!CoreManager::getInstance()->getSettingsModel()->getSecureChatEnabled() && haveEncryption)
+		return false;
 
 	if( mFilterFlags > 0) {
-		if( !show && ( (mFilterFlags & TimelineFilter::SimpleChatRoom) == TimelineFilter::SimpleChatRoom))
-			show = !isGroup && !haveEncryption;
-		if( !show && ( (mFilterFlags & TimelineFilter::SecureChatRoom) == TimelineFilter::SecureChatRoom))
-			show = !isGroup && haveEncryption;
-		if( !show && ( (mFilterFlags & TimelineFilter::GroupChatRoom) == TimelineFilter::GroupChatRoom))
-			show = isGroup && !haveEncryption;
-		if( !show && ( (mFilterFlags & TimelineFilter::SecureGroupChatRoom) == TimelineFilter::SecureGroupChatRoom))
-			show = isGroup && haveEncryption;
-		if( !show && ( (mFilterFlags & TimelineFilter::EphemeralChatRoom) == TimelineFilter::EphemeralChatRoom))
-			show = isEphemeral;
-			
-		show = ( (mFilterFlags & AllChatRooms) == 0) || show;
-		if( show && ( (mFilterFlags & TimelineFilter::NoSimpleChatRoom) == TimelineFilter::NoSimpleChatRoom))
-			show = !(!isGroup && !haveEncryption);
-		if( show && ( (mFilterFlags & TimelineFilter::NoSecureChatRoom) == TimelineFilter::NoSecureChatRoom))
-			show = !(!isGroup && haveEncryption);
-		if( show && ( (mFilterFlags & TimelineFilter::NoGroupChatRoom) == TimelineFilter::NoGroupChatRoom))
-			show = !(isGroup && !haveEncryption);
-		if( show && ( (mFilterFlags & TimelineFilter::NoSecureGroupChatRoom) == TimelineFilter::NoSecureGroupChatRoom))
-			show = !(isGroup && haveEncryption);
-		if( show && ( (mFilterFlags & TimelineFilter::NoEphemeralChatRoom) == TimelineFilter::NoEphemeralChatRoom))
-			show = !isEphemeral;
+		show = !(( ( (mFilterFlags & TimelineFilter::SimpleChatRoom) == TimelineFilter::SimpleChatRoom) && isGroup)
+				|| ( ( (mFilterFlags & TimelineFilter::SecureChatRoom) == TimelineFilter::SecureChatRoom) && !haveEncryption)
+				|| ( ( (mFilterFlags & TimelineFilter::GroupChatRoom) == TimelineFilter::GroupChatRoom) && !isGroup)
+				|| ( ( (mFilterFlags & TimelineFilter::StandardChatRoom) == TimelineFilter::StandardChatRoom) && haveEncryption)
+				|| ( ( (mFilterFlags & TimelineFilter::EphemeralChatRoom) == TimelineFilter::EphemeralChatRoom) && !isEphemeral)
+				|| ( ( (mFilterFlags & TimelineFilter::NoEphemeralChatRoom) == TimelineFilter::NoEphemeralChatRoom) && isEphemeral));
 	}
 		
 	if(show && mFilterText != ""){
@@ -134,6 +125,8 @@ bool TimelineProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex &sou
 bool TimelineProxyModel::lessThan (const QModelIndex &left, const QModelIndex &right) const {
 	const TimelineModel* a = sourceModel()->data(left).value<TimelineModel*>();
 	const TimelineModel* b = sourceModel()->data(right).value<TimelineModel*>();
-
-	return a->getChatRoomModel()->mLastUpdateTime > b->getChatRoomModel()->mLastUpdateTime;
+	bool aHaveUnread = a->getChatRoomModel()->getAllUnreadCount() > 0;
+	bool bHaveUnread = b->getChatRoomModel()->getAllUnreadCount() > 0;
+	return (aHaveUnread && !bHaveUnread)
+			|| (aHaveUnread == bHaveUnread && a->getChatRoomModel()->mLastUpdateTime > b->getChatRoomModel()->mLastUpdateTime);
 }

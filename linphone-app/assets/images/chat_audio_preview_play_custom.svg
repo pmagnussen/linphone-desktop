@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="80"
+   height="80"
+<<<<<<<< HEAD:linphone-app/assets/images/add_custom.svg
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="add_custom.svg"
+========
+   viewBox="0 0 80 80"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="chat_audio_play.svg"
+>>>>>>>> 0618dfc69b13ab73d5c3d7e39a2b5f54cc5f1225:linphone-app/assets/images/chat_audio_preview_play_custom.svg
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs12" />
+  <sodipodi:namedview
+     id="namedview10"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+<<<<<<<< HEAD:linphone-app/assets/images/add_custom.svg
+     inkscape:zoom="6.0625"
+     inkscape:cx="-26.309278"
+     inkscape:cy="16.164948"
+========
+     inkscape:zoom="5.3231707"
+     inkscape:cx="29.024055"
+     inkscape:cy="63.683849"
+>>>>>>>> 0618dfc69b13ab73d5c3d7e39a2b5f54cc5f1225:linphone-app/assets/images/chat_audio_preview_play_custom.svg
+     inkscape:window-width="1920"
+     inkscape:window-height="1131"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg8" />
+  <g
+     stroke="#000000"
+     fill="none"
+     fill-rule="evenodd"
+<<<<<<<< HEAD:linphone-app/assets/images/add_custom.svg
+     stroke-linecap="round"
+     id="g6"
+     transform="matrix(4.4444441,0,0,4.4444467,0,-1.9873506e-5)">
+    <path
+       d="m 17.5,9 a 8.5,8.5 0 1 1 -17,0 8.5,8.5 0 0 1 17,0 z"
+       stroke-linejoin="round"
+       id="path2" />
+    <path
+       d="m 9.017,6 v 5.833 M 6.1,8.917 h 5.833"
+       id="path4" />
+========
+     id="g6"
+     transform="scale(0.96277665,0.97560976)">
+    <g
+       fill="#444444"
+       id="g4">
+      <path
+         d="m 41.547,0 c 22.945,0 41.546,18.356 41.546,41 0,22.644 -18.6,41 -41.546,41 C 18.6,82 0,63.644 0,41 0,18.356 18.601,0 41.547,0 Z M 29.975,20.97 V 59.812 L 61.75,41.12 Z"
+         id="path2" />
+    </g>
+>>>>>>>> 0618dfc69b13ab73d5c3d7e39a2b5f54cc5f1225:linphone-app/assets/images/chat_audio_preview_play_custom.svg
+  </g>
+</svg>

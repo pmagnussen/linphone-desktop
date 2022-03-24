@@ -62,7 +62,7 @@ SearchSipAddressesModel::~SearchSipAddressesModel(){
 // -----------------------------------------------------------------------------
 
 int SearchSipAddressesModel::rowCount (const QModelIndex &) const {
-	return std::max(mAddresses.count()-1,0);
+	return mAddresses.count();
 }
 
 QHash<int, QByteArray> SearchSipAddressesModel::roleNames () const {
@@ -112,18 +112,16 @@ void SearchSipAddressesModel::setFilter(const QString& filter){
 
 void SearchSipAddressesModel::searchReceived(std::list<std::shared_ptr<linphone::SearchResult>> results){
 	QList<std::shared_ptr<SearchResultModel> > addresses;
-	for(auto it = results.begin() ; it != results.end() ; ++it)
-		addresses << std::make_shared<SearchResultModel>((*it)->getFriend(), (*it)->getAddress());
-// Fix crash on Qt 5.15.2 with endResetModel (index out of range).
-	if(mAddresses.size() > 0){// Workaround : remove all
-		beginRemoveRows(QModelIndex(), 0, mAddresses.size()-1);
-		mAddresses.clear();
-		endRemoveRows();
+	for(auto it = results.begin() ; it != results.end() ; ++it){
+		auto linphoneFriend = (*it)->getFriend();
+		auto address = (*it)->getAddress();
+		if( linphoneFriend || address)
+			addresses << std::make_shared<SearchResultModel>(linphoneFriend,address );
 	}
-	if( addresses.size() > 0){// Workaround : add new on cleanned base
-		beginInsertRows(QModelIndex(),0, addresses.size()-1);
-		mAddresses = addresses;
-		endInsertRows(); 
-	}
-//--------------------------------------------------------------
+	beginResetModel();
+	mAddresses.clear();
+	mAddresses = addresses;
+	if(mAddresses.size() > 0 )// remove self
+		mAddresses.pop_back();
+	endResetModel();
 }

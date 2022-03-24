@@ -10,6 +10,10 @@ QtObject {
 	property string sectionName : 'Chat'
 	property color color: ColorsList.add(sectionName, 'q').color
 	property string copyTextIcon : 'copy_custom'
+	property int rightButtonMargin: 15
+	property int rightButtonSize: 30
+	property int rightButtonLMargin: 10
+	property int separatorHeight: 2
 	
 	property QtObject sectionHeading: QtObject {
 		property int padding: 5
@@ -26,12 +30,28 @@ QtObject {
 		}
 	}
 	
+	property QtObject gotToBottom: QtObject{
+		property string name: 'goToBottom'
+		property string icon: 'move_to_bottom_custom'
+		property int iconSize: 30
+		property color backgroundNormalColor : ColorsList.addImageColor(sectionName+'_'+name+'_b_n', icon, 's_n_b_bg').color
+		property color backgroundHoveredColor : ColorsList.addImageColor(sectionName+'_'+name+'_b_h', icon, 's_h_b_bg').color
+		property color backgroundPressedColor : ColorsList.addImageColor(sectionName+'_'+name+'_b_p', icon, 's_p_b_bg').color
+		property color foregroundNormalColor : ColorsList.addImageColor(sectionName+'_'+name+'_f_n', icon, 's_n_b_fg').color
+		property color foregroundHoveredColor : ColorsList.addImageColor(sectionName+'_'+name+'_f_h', icon, 's_h_b_fg').color
+		property color foregroundPressedColor : ColorsList.addImageColor(sectionName+'_'+name+'_f_p', icon, 's_p_b_fg').color
+	}
+	
 	property QtObject sendArea: QtObject {
 		property int height: 80
 		
 		property QtObject border: QtObject {
 			property color color: ColorsList.add(sectionName+'_send_border', 'f').color
 			property int width: 1
+		}
+		property QtObject backgroundBorder: QtObject {
+			property color color: ColorsList.add(sectionName+'_send_background_border', 'ag').color
+			property int width: 2
 		}
 	}
 	
@@ -41,7 +61,28 @@ QtObject {
 		property int leftPadding: 20
 		property int pointSize: Units.dp * 9
 	}
-	
+	property QtObject replyPreview: QtObject {
+		id: replyPreviewObject
+		property string name: 'replyPreview'
+		property string icon: 'menu_reply_custom'
+		property color backgroundColor: ColorsList.add(sectionName+'_'+name+'_bg', 'e').color
+		property color headerTextColor: ColorsList.add(sectionName+'_'+name+'_header_fg', 'i').color
+		property color iconColor: ColorsList.add(sectionName+'_'+name+'_header_fg', 'i').color
+		property color textColor: ColorsList.add(sectionName+'_'+name+'_fg', 'd').color
+		property int pointSize: Units.dp * 9
+		property int headerPointSize: Units.dp * 9
+		property QtObject closeButton: QtObject{
+			property int iconSize: rightButtonSize
+			property string name : 'close'
+			property string icon : 'close_custom'
+			property color backgroundNormalColor : ColorsList.addImageColor(sectionName+'_'+replyPreviewObject.name+'_'+name+'_b_n', icon, 'l_n_b_bg').color
+			property color backgroundHoveredColor : ColorsList.addImageColor(sectionName+'_'+replyPreviewObject.name+'_'+name+'_b_h', icon, 'l_h_b_bg').color
+			property color backgroundPressedColor : ColorsList.addImageColor(sectionName+'_'+replyPreviewObject.name+'_'+name+'_b_p', icon, 'l_p_b_bg').color
+			property color foregroundNormalColor : ColorsList.addImageColor(sectionName+'_'+replyPreviewObject.name+'_'+name+'_f_n', icon, 'l_n_b_fg').color
+			property color foregroundHoveredColor : ColorsList.addImageColor(sectionName+'_'+replyPreviewObject.name+'_'+name+'_f_h', icon, 'l_h_b_fg').color
+			property color foregroundPressedColor : ColorsList.addImageColor(sectionName+'_'+replyPreviewObject.name+'_'+name+'_f_p', icon, 'l_p_b_fg').color
+		}
+	}
 	property QtObject messageBanner: QtObject {
 		property color color: ColorsList.add(sectionName+'_message_banner', '', 'Background of message banner', '#9ecd1d').color
 		property color textColor: ColorsList.add(sectionName+'_message_banner_text', 'q', 'Text of message banner').color
@@ -60,6 +101,11 @@ QtObject {
 		property int rightMargin: 18
 		property int lineHeight: 30
 		property int metaWidth: 40
+		
+		property QtObject separator: QtObject {
+			property color color: ColorsList.add(sectionName+'_separator_border', 'g10').color
+			property int width: 2
+		}
 		
 		property QtObject menu: QtObject {
 			property int iconSize: 22
@@ -202,9 +248,9 @@ QtObject {
 			
 			property QtObject outgoing: QtObject {
 				property color backgroundColor: ColorsList.add(sectionName+'_outgoing_bg', 'e').color
-				property int areaSize: 16
-				property int busyIndicatorSize: 16
-				property int sendIconSize: 12
+				property int areaSize: 12
+				property int busyIndicatorSize: 12
+				property int sendIconSize: 60
 				
 				property QtObject text: QtObject {
 					property color color: ColorsList.add(sectionName+'_outgoing_text', 'd').color

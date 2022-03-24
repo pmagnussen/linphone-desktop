@@ -20,15 +20,20 @@ Rectangle {
 	
 	property alias model: view.model
 	property string _selectedSipAddress
+	property bool showHistoryButton : CoreManager.callLogsCount
+	property bool updateSelectionModels : true
+	property bool isFilterVisible: searchView.visible || showFilterView
+	property bool showFiltersButtons: view.count > 0 || timeline.isFilterVisible || timeline.model.filterFlags > 0
 	
 	// ---------------------------------------------------------------------------
 	
 	//signal entrySelected (string entry)
 	signal entrySelected (TimelineModel entry)
+	signal entryClicked(TimelineModel entry)
 	signal showHistoryRequest()
 	
 	// ---------------------------------------------------------------------------
-	
+	property bool showFilterView : false
 	color: TimelineStyle.color
 	
 	ColumnLayout {
@@ -46,24 +51,27 @@ Rectangle {
 					timeline.entrySelected('')
 				}
 			}
-			onSelectedChanged : if(timelineModel) timeline.entrySelected(timelineModel)
+			onSelectedChanged : if(timelineModel && timeline.updateSelectionModels) timeline.entrySelected(timelineModel)
 		}
 		// -------------------------------------------------------------------------
 		// Legend.
 		// -------------------------------------------------------------------------
 		
 		Rectangle {
+			id: legendArea
 			Layout.fillWidth: true
 			Layout.preferredHeight: TimelineStyle.legend.height
 			Layout.alignment: Qt.AlignTop
 			color: showHistory.containsMouse?TimelineStyle.legend.backgroundColor.hovered:TimelineStyle.legend.backgroundColor.normal
-			visible:view.count > 0 || searchView.visible || filterView.visible
+			visible: showHistoryButton || showFiltersButtons
+			//visible:view.count > 0 || timeline.isFilterVisible || timeline.model.filterFlags > 0 || CoreManager.eventCount > 0
 			
 			MouseArea{// no more showing history
 				id:showHistory
 				anchors.fill:parent
+				visible: showFiltersButtons
 				onClicked: {
-					filterView.visible = !filterView.visible
+					timeline.showFilterView = !timeline.showFilterView
 				}
 			}
 			RowLayout{
@@ -73,6 +81,7 @@ Rectangle {
 					Layout.preferredHeight: parent.height
 					Layout.fillWidth: true
 					Layout.leftMargin: TimelineStyle.legend.leftMargin
+					visible: showFiltersButtons
 					color: TimelineStyle.legend.color
 					font.pointSize: TimelineStyle.legend.pointSize
 					//: A title for filtering mode.
@@ -91,10 +100,11 @@ Rectangle {
 					icon: 'filter_params_custom'
 					iconSize: TimelineStyle.legend.iconSize
 					overwriteColor: TimelineStyle.legend.color
+					visible: showFiltersButtons
 					MouseArea{
 						anchors.fill:parent
 						onClicked:{
-							filterView.visible = !filterView.visible
+							timeline.showFilterView = !timeline.showFilterView
 						}
 					}
 				}
@@ -102,6 +112,7 @@ Rectangle {
 					Layout.alignment: Qt.AlignRight
 					Layout.fillHeight: true
 					Layout.preferredWidth: TimelineStyle.legend.iconSize
+					visible: showFiltersButtons
 					onClicked:{
 						searchView.visible = !searchView.visible
 					}
@@ -121,6 +132,7 @@ Rectangle {
 					Layout.rightMargin: TimelineStyle.legend.lastRightMargin
 					Layout.fillHeight: true
 					Layout.preferredWidth: TimelineStyle.legend.iconSize
+					visible: timeline.showHistoryButton 
 					onClicked:{
 						showHistoryRequest()
 					}
@@ -140,13 +152,13 @@ Rectangle {
 		// Filter.
 		// -------------------------------------------------------------------------
 		Rectangle{
-			id:filterView
+			id:exhaustiveFilterView
 			Layout.fillWidth: true
 			Layout.preferredHeight: filterChoices.height
 			Layout.alignment: Qt.AlignCenter
 			border.color: TimelineStyle.filterField.borderColor
 			border.width: 2
-			visible:false
+			visible: timeline.showFilterView && !SettingsModel.useMinimalTimelineFilter
 			
 			ColumnLayout{
 				id:filterChoices
@@ -155,54 +167,146 @@ Rectangle {
 				anchors.right:parent.right
 				spacing:-4
 				function getFilterFlags(){
-					return simpleFilter.value | secureFilter.value | groupFilter.value | secureGroupFilter.value | ephemeralsFilter.value;
+					return secureFilter.model.get(secureFilter.currentIndex).value | groupFilter.model.get(groupFilter.currentIndex).value | ephemeralsFilter.model.get(ephemeralsFilter.currentIndex).value;
 				}
-				CheckBoxText {
-					id:simpleFilter
-					//: 'Simple rooms' : Filter item
-					//~ Mode Selecting it will show all simple rooms
-					text:qsTr('timelineFilterSimpleRooms')
-					property var value : (checkState==Qt.Checked?TimelineProxyModel.SimpleChatRoom: (checkState == Qt.PartiallyChecked ?TimelineProxyModel.NoSimpleChatRoom:0))
-					onValueChanged: timeline.model.filterFlags = filterChoices.getFilterFlags()
-					tristate: true
-				}
-				CheckBoxText {
+				ComboBox {
+					Layout.fillWidth: true
 					id:secureFilter
-					//: 'Secure rooms' : Filter item
-					//~ Mode Selecting it will show all secure rooms
-					text:qsTr('timelineFilterSecureRooms')
-					property var value : (checkState==Qt.Checked?TimelineProxyModel.SecureChatRoom: (checkState == Qt.PartiallyChecked ?TimelineProxyModel.NoSecureChatRoom:0))
-					onValueChanged: timeline.model.filterFlags = filterChoices.getFilterFlags()
-					tristate: true
+					currentIndex: 0
+					textRole: "key"
+					model:  ListModel {
+						ListElement { 
+					//: 'All security levels' : Filter item. Selecting it will not do any filter on security level.
+							key: qsTr('timelineFilterAllSecureLevelRooms'); value: 0}
+						ListElement { 
+					//: 'Standard rooms' : Filter item. Selecting it will show all simple rooms.	
+							key: qsTr('timelineFilterStandardRooms'); value: TimelineProxyModel.StandardChatRoom}
+						ListElement { 
+					//: 'Secure rooms' : Filter item. Selecting it will show all secure rooms.
+							key: qsTr('timelineFilterSecureRooms'); value: TimelineProxyModel.SecureChatRoom}
+					}
+					
+					haveBorder: false
+					haveMargin: false
+					backgroundColor: 'transparent'
+					visible: SettingsModel.secureChatEnabled && SettingsModel.standardChatEnabled
+					onActivated:  timeline.model.filterFlags = filterChoices.getFilterFlags()
 				}
-				CheckBoxText {
+				ComboBox {
+					Layout.fillWidth: true
 					id:groupFilter
-					//: 'Chat groups' : Filter item
-					//~ Mode Selecting it will show all chat groups (with more than one participant)
-					text:qsTr('timelineFilterChatGroups')
-					property var value : (checkState==Qt.Checked?TimelineProxyModel.GroupChatRoom: (checkState == Qt.PartiallyChecked ?TimelineProxyModel.NoGroupChatRoom:0))
-					onValueChanged: timeline.model.filterFlags = filterChoices.getFilterFlags()
-					tristate: true
+					currentIndex: 0
+					textRole: "key"
+					model:  ListModel {
+						ListElement { 
+					//: 'Any conversations' : Filter item. Selecting it will not do any filter on the type of conversations.
+							key: qsTr('timelineFilterAnyChatRooms'); value: 0}
+						ListElement { 
+					//: 'Simple rooms' : Filter item. Selecting it will show all secure chat groups (with more than one participant).
+							key: qsTr('timelineFilterSimpleRooms'); value: TimelineProxyModel.SimpleChatRoom}
+						ListElement { 
+					//: 'Chat groups' : Filter item. Selecting it will show all chat groups (with more than one participant).
+							key: qsTr('timelineFilterChatGroups'); value: TimelineProxyModel.GroupChatRoom}
+					}
+					
+					haveBorder: false
+					haveMargin: false
+					backgroundColor: 'transparent'
+					visible: SettingsModel.secureChatEnabled || SettingsModel.standardChatEnabled
+					onActivated:  timeline.model.filterFlags = filterChoices.getFilterFlags()
 				}
-				CheckBoxText {
-					id:secureGroupFilter
-					//: 'Secure Chat Groups' : Filter item
-					//~ Mode Selecting it will show all secure chat groups (with more than one participant)
-					text:qsTr('timelineFilterSecureChatGroups')
-					property var value : (checkState==Qt.Checked?TimelineProxyModel.SecureGroupChatRoom: (checkState == Qt.PartiallyChecked ?TimelineProxyModel.NoSecureGroupChatRoom:0))
-					onValueChanged: timeline.model.filterFlags = filterChoices.getFilterFlags()
-					tristate: true
-				}
-				CheckBoxText {
+				ComboBox {
+					Layout.fillWidth: true
 					id:ephemeralsFilter
-					//: 'Ephemerals' : Filter item
-					//~ Mode Selecting it will show all chat rooms where the ephemeral mode has been enabled.
-					text:qsTr('timelineFilterEphemerals')
-					property var value : (checkState==Qt.Checked?TimelineProxyModel.EphemeralChatRoom: (checkState == Qt.PartiallyChecked ?TimelineProxyModel.NoEphemeralChatRoom:0))
-					onValueChanged: timeline.model.filterFlags = filterChoices.getFilterFlags()
-					tristate: true
+					currentIndex: 0
+					textRole: "key"
+					model:  ListModel {
+						ListElement { 
+					//: 'Ephemerals on/off' : Filter item. Selecting it will not do any filter on ephemerals activation.
+							key: qsTr('timelineFilterAnyEphemerals'); value: 0}
+						ListElement { 
+					//: 'No Ephemerals' : Filter item. Selecting it will hide all chat rooms where the ephemeral mode has been enabled.
+							key: qsTr('timelineFilterNoEphemerals'); value: TimelineProxyModel.NoEphemeralChatRoom}
+						ListElement { 
+					//: 'Ephemerals' : Filter item. Selecting it will show all chat rooms where the ephemeral mode has been enabled.
+							key: qsTr('timelineFilterEphemerals'); value: TimelineProxyModel.EphemeralChatRoom}
+					}
+					
+					haveBorder: false
+					haveMargin: false
+					backgroundColor: 'transparent'
+					visible: SettingsModel.secureChatEnabled || SettingsModel.standardChatEnabled
+					onActivated:  timeline.model.filterFlags = filterChoices.getFilterFlags()
+				}
+			}
+		}
+		Rectangle{
+			id:minimalFilterView
+			Layout.fillWidth: true
+			Layout.preferredHeight: minimalFilterChoices.height
+			Layout.alignment: Qt.AlignCenter
+			border.color: TimelineStyle.filterField.borderColor
+			border.width: 2
+			visible: timeline.showFilterView && SettingsModel.useMinimalTimelineFilter
+			
+			ColumnLayout{
+				id:minimalFilterChoices
+				anchors.leftMargin: 20
+				anchors.left:parent.left
+				anchors.right:parent.right
+				spacing:-4
+				function getFilterFlags(){
+					return securedCheckBox.getValue() | groupCheckBox.getValue() | conferenceCheckBox.getValue();
+				}
+				CheckBoxText {
+					id: securedCheckBox
+					Layout.fillWidth: true
+					visible: SettingsModel.secureChatEnabled && SettingsModel.standardChatEnabled
+					//: 'Secure rooms' : Filter item. Selecting it will show all secure rooms.
+					text: qsTr('timelineFilterSecureRooms')
+					
+					onClicked: {
+						timeline.model.filterFlags = minimalFilterChoices.getFilterFlags()
+					}
+					function getValue(){
+						if( checked)
+							return TimelineProxyModel.SecureChatRoom
+						else
+							return 0
+					}
+				}
+				CheckBoxText {
+					id: groupCheckBox
+					Layout.fillWidth: true
+					visible: SettingsModel.secureChatEnabled || SettingsModel.standardChatEnabled
+					//: 'Chat groups' : Filter item. Selecting it will show all chat groups (with more than one participant).
+					text: qsTr('timelineFilterChatGroups')
+					
+					onClicked: {
+						timeline.model.filterFlags = minimalFilterChoices.getFilterFlags()
+					}
+					function getValue(){
+						if( checked)
+							return TimelineProxyModel.GroupChatRoom
+						else
+							return 0
+					}
 				}
 				
+				CheckBoxText {
+					id: conferenceCheckBox
+					Layout.fillWidth: true
+					visible: false
+					//: 'Conferences' : Filter item. Selecting it will show all conferences.
+					text: qsTr('timelineFilterConferences')
+					
+					onClicked: {
+						timeline.model.filterFlags = minimalFilterChoices.getFilterFlags()
+					}
+					function getValue(){
+							return 0
+					}
+				}
 			}
 		}
 		// -------------------------------------------------------------------------
@@ -225,11 +329,12 @@ Rectangle {
 			
 			TextField {
 				id:searchBar
-				anchors {
-					fill: parent
-					margins: 7
-				}
-				width: parent.width - 14
+				anchors.fill: parent
+				anchors.rightMargin: 7
+				anchors.leftMargin: 7
+				anchors.topMargin: 5
+				anchors.bottomMargin: 5
+				width: parent.width - 14				
 				icon: 'search_custom'
 				iconSize: 30
 				overwriteColor: TimelineStyle.searchField.color
@@ -237,6 +342,7 @@ Rectangle {
 				placeholderText: qsTr('timelineSearchPlaceholderText')
 				
 				onTextChanged: timeline.model.filterText = text
+				font.pointSize: TimelineStyle.searchField.pointSize
 			}
 			
 		}
@@ -246,6 +352,7 @@ Rectangle {
 		
 		ScrollableListView {
 			id: view
+			property alias updateSelectionModels: timeline.updateSelectionModels
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			currentIndex: -1
@@ -297,12 +404,14 @@ Rectangle {
 					propagateComposedEvents: true
 					preventStealing: false
 					onClicked: {
-						//timeline.model.unselectAll()
 						if(mouse.button == Qt.LeftButton){
-							if(modelData.selected)// Update selection
-								timeline.entrySelected(modelData)
-							modelData.selected = true
-							view.currentIndex = index;
+							//if(modelData.selected || !view.updateSelectionModels)// Update selection
+							timeline.entryClicked(modelData)
+							if(view){
+								if(view.updateSelectionModels)
+									modelData.selected = true
+								view.currentIndex = index;
+							}
 						}else{
 							contactTooltip.show()
 						}
@@ -312,7 +421,7 @@ Rectangle {
 				Connections{
 					target:modelData
 					onSelectedChanged:{
-						if(selected) {
+						if(view.updateSelectionModels && selected) {
 							view.currentIndex = index;
 						}
 					}

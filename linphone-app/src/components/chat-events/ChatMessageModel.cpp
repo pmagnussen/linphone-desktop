@@ -38,11 +38,15 @@
 #include "app/paths/Paths.hpp"
 #include "components/contact/ContactModel.hpp"
 #include "components/contacts/ContactsListModel.hpp"
+#include "components/content/ContentListModel.hpp"
+#include "components/content/ContentModel.hpp"
+#include "components/content/ContentProxyModel.hpp"
 #include "components/core/CoreManager.hpp"
 #include "app/providers/ThumbnailProvider.hpp"
 #include "components/notifier/Notifier.hpp"
 #include "components/participant-imdn/ParticipantImdnStateListModel.hpp"
 #include "components/participant-imdn/ParticipantImdnStateProxyModel.hpp"
+#include "components/settings/AccountSettingsModel.hpp"
 #include "components/settings/SettingsModel.hpp"
 #include "utils/QExifImageHeader.hpp"
 #include "utils/Utils.hpp"
@@ -50,186 +54,6 @@
 
 // =============================================================================
 
-// Warning : isFileTransfer/isFile/getpath cannot be used for Content that comes from linphone::ChatMessage::getContents(). That lead to a crash.
-// in SDK there is this note : return c->isFile(); // TODO FIXME this doesn't work when Content is from linphone_chat_message_get_contents() list
-ContentModel::ContentModel(ChatMessageModel* chatModel){
-	App::getInstance()->getEngine()->setObjectOwnership(this, QQmlEngine::CppOwnership);// Avoid QML to destroy it when passing by Q_INVOKABLE
-	mChatMessageModel = chatModel;
-	mWasDownloaded = false;
-	mFileOffset = 0;
-}
-ContentModel::ContentModel(std::shared_ptr<linphone::Content> content, ChatMessageModel* chatModel){
-	App::getInstance()->getEngine()->setObjectOwnership(this, QQmlEngine::CppOwnership);// Avoid QML to destroy it when passing by Q_INVOKABLE
-	mChatMessageModel = chatModel;
-	mWasDownloaded = false;
-	mFileOffset = 0;
-	setContent(content);
-}
-std::shared_ptr<linphone::Content> ContentModel::getContent()const{
-	return mContent;
-}
-
-quint64 ContentModel::getFileSize() const{
-	auto s = mContent->getFileSize();
-	return (quint64)s;
-}
-
-QString ContentModel::getName() const{
-	return QString::fromStdString(mContent->getName());
-}
-
-QString ContentModel::getThumbnail() const{
-	return mThumbnail;
-}
-
-
-void ContentModel::setFileOffset(quint64 fileOffset){
-	if( mFileOffset != fileOffset) {
-		mFileOffset = fileOffset;
-		emit fileOffsetChanged();
-	}
-}
-void ContentModel::setThumbnail(const QString& data){
-	if( mThumbnail != data) {
-		mThumbnail = data;
-		emit thumbnailChanged();
-	}
-}
-void ContentModel::setWasDownloaded(bool wasDownloaded){
-	if( mWasDownloaded != wasDownloaded) {
-		mWasDownloaded = wasDownloaded;
-		emit wasDownloadedChanged();
-	}
-}
-
-void ContentModel::setContent(std::shared_ptr<linphone::Content> content){
-	mContent = content;
-	auto chatMessageFileContentModel = mChatMessageModel->getFileContentModel();
-	if(chatMessageFileContentModel && chatMessageFileContentModel->getContent() == content){
-		QString path = Utils::coreStringToAppString(mContent->getFilePath());
-		if (!path.isEmpty() && (mChatMessageModel->isOutgoing() ||
-								mChatMessageModel->getState() == LinphoneEnums::ChatMessageStateDisplayed))
-			createThumbnail();
-	}
-}
-
-// Create a thumbnail from the first content that have a file and store it in Appdata
-void ContentModel::createThumbnail () {
-	//if (!getChatMessageModel()->getChatMessage()->getAppdata().empty())
-	//		return;// Already exist : no need to create one
-	//std::list<std::shared_ptr<linphone::Content> > contents = message->getContents();
-	//if( contents.size() > 0)
-	//{
-	auto chatMessageFileContentModel = mChatMessageModel->getFileContentModel();
-	if( chatMessageFileContentModel && chatMessageFileContentModel->getContent() == mContent){
-		QString id;
-		QString path = Utils::coreStringToAppString(mChatMessageModel->getChatMessage()->getFileTransferInformation()->getFilePath());
-		
-		auto appdata = ChatMessageModel::AppDataManager(QString::fromStdString(mChatMessageModel->getChatMessage()->getAppdata()));
-		
-		if(!appdata.mData.contains(path) 
-				|| !QFileInfo(QString::fromStdString(Paths::getThumbnailsDirPath())+appdata.mData[path]).isFile()){
-			// File don't exist. Create the thumbnail
-			
-			QImage image(path);
-			if( image.isNull()){// Try to determine format from headers
-				QImageReader reader(path);
-				reader.setDecideFormatFromContent(true);
-				QByteArray format = reader.format();
-				if(!format.isEmpty())
-					image = QImage(path, format);
-			}
-			if (!image.isNull()){
-				int rotation = 0;
-				QExifImageHeader exifImageHeader;
-				if (exifImageHeader.loadFromJpeg(path))
-					rotation = int(exifImageHeader.value(QExifImageHeader::ImageTag::Orientation).toShort());
-				QImage thumbnail = image.scaled(
-							Constants::ThumbnailImageFileWidth, Constants::ThumbnailImageFileHeight,
-							Qt::KeepAspectRatio, Qt::SmoothTransformation
-							);
-				
-				if (rotation != 0) {
-					QTransform transform;
-					if (rotation == 3 || rotation == 4)
-						transform.rotate(180);
-					else if (rotation == 5 || rotation == 6)
-						transform.rotate(90);
-					else if (rotation == 7 || rotation == 8)
-						transform.rotate(-90);
-					thumbnail = thumbnail.transformed(transform);
-					if (rotation == 2 || rotation == 4 || rotation == 5 || rotation == 7)
-						thumbnail = thumbnail.mirrored(true, false);
-				}
-				QString uuid = QUuid::createUuid().toString();
-				id = QStringLiteral("%1.jpg").arg(uuid.mid(1, uuid.length() - 2));
-				
-				if (!thumbnail.save(QString::fromStdString(Paths::getThumbnailsDirPath()) + id , "jpg", 100)) {
-					qWarning() << QStringLiteral("Unable to create thumbnail of: `%1`.").arg(path);
-				}else{
-					appdata.mData[path] = id;
-					mChatMessageModel->getChatMessage()->setAppdata(appdata.toString().toStdString());
-				}
-			}
-		}
-		
-		if( path != ""){
-			setWasDownloaded( !path.isEmpty() && QFileInfo(path).isFile());
-			if(appdata.mData.contains(path) && !appdata.mData[path].isEmpty())
-				setThumbnail(QStringLiteral("image://%1/%2").arg(ThumbnailProvider::ProviderId).arg(appdata.mData[path]));
-		}
-	}
-	//message->setAppdata(Utils::appStringToCoreString(id+':'+path));
-	//}
-}
-
-void ContentModel::downloadFile(){
-	switch (mChatMessageModel->getState()) {
-		case LinphoneEnums::ChatMessageStateDelivered:
-		case LinphoneEnums::ChatMessageStateDeliveredToUser:
-		case LinphoneEnums::ChatMessageStateDisplayed:
-		case LinphoneEnums::ChatMessageStateFileTransferDone:
-			break;
-			
-		default:
-			qWarning() << QStringLiteral("Unable to download file of entry %1. It was not uploaded.").arg(mChatMessageModel->getState());
-			return;
-	}  
-	bool soFarSoGood;
-	QString filename = getName();//mFileTransfertContent->getName();
-	const QString safeFilePath = Utils::getSafeFilePath(
-				QStringLiteral("%1%2")
-				.arg(CoreManager::getInstance()->getSettingsModel()->getDownloadFolder())
-				.arg(filename),
-				&soFarSoGood
-				);
-	
-	if (!soFarSoGood) {
-		qWarning() << QStringLiteral("Unable to create safe file path for: %1.").arg(filename);
-		return;
-	}
-	mContent->setFilePath(Utils::appStringToCoreString(safeFilePath));
-	//mChatMessage->getContents().front()->setFilePath(Utils::appStringToCoreString(safeFilePath));
-	
-	if( !mContent->isFileTransfer()){
-		QMessageBox::warning(nullptr, "Download File", "This file was already downloaded and is no more on the server. Your peer have to resend it if you want to get it");
-	}else
-	{
-		if (!mChatMessageModel->getChatMessage()->downloadContent(mContent))
-			qWarning() << QStringLiteral("Unable to download file of entry %1.").arg(filename);
-	}
-}
-
-void ContentModel::openFile (bool showDirectory) {
-	if (!mWasDownloaded && !mChatMessageModel->isOutgoing()) {
-		downloadFile();
-	}else{
-		QFileInfo info( Utils::coreStringToAppString(mContent->getFilePath()));
-		QDesktopServices::openUrl(
-					QUrl(QStringLiteral("file:///%1").arg(showDirectory ? info.absolutePath() : info.absoluteFilePath()))
-					);
-	}
-}
 
 
 // =============================================================================
@@ -257,8 +81,8 @@ std::shared_ptr<linphone::Buffer> ChatMessageListener::onFileTransferSend(const 
 	emit fileTransferSend(message, content, offset, size);
 	return nullptr;
 }
-void ChatMessageListener::onFileTransferProgressIndication (const std::shared_ptr<linphone::ChatMessage> &message, const std::shared_ptr<linphone::Content> & content, size_t offset, size_t i){
-	emit fileTransferProgressIndication(message, content, offset, i);
+void ChatMessageListener::onFileTransferProgressIndication (const std::shared_ptr<linphone::ChatMessage> &message, const std::shared_ptr<linphone::Content> & content, size_t offset, size_t total){
+	emit fileTransferProgressIndication(message, content, offset, total);
 }
 void ChatMessageListener::onMsgStateChanged (const std::shared_ptr<linphone::ChatMessage> &message, linphone::ChatMessage::State state){
 	emit msgStateChanged(message, state);
@@ -296,47 +120,36 @@ QString ChatMessageModel::AppDataManager::toString(){
 }
 ChatMessageModel::ChatMessageModel ( std::shared_ptr<linphone::ChatMessage> chatMessage, QObject * parent) : ChatEvent(ChatRoomModel::EntryType::MessageEntry, parent) {
 	App::getInstance()->getEngine()->setObjectOwnership(this, QQmlEngine::CppOwnership);// Avoid QML to destroy it
-	mParticipantImdnStateListModel = std::make_shared<ParticipantImdnStateListModel>(chatMessage);
-	mChatMessageListener = std::make_shared<ChatMessageListener>(this, parent);
-	mChatMessage = chatMessage;
+	if(chatMessage){
+		mParticipantImdnStateListModel = std::make_shared<ParticipantImdnStateListModel>(chatMessage);
+		mChatMessageListener = std::make_shared<ChatMessageListener>(this, parent);
+		mChatMessage = chatMessage;
+		mChatMessage->addListener(mChatMessageListener);
+		if( mChatMessage->isReply()){
+			auto replyMessage = mChatMessage->getReplyMessage();
+			if( replyMessage)// Reply message could be inexistant (for example : when locally deleted)
+				mReplyChatMessageModel = create(replyMessage, parent);
+		}
+		connect(this, &ChatMessageModel::remove, dynamic_cast<ChatRoomModel*>(parent), &ChatRoomModel::removeEntry);
+	
+		std::list<std::shared_ptr<linphone::Content>> contents = chatMessage->getContents();
+		QString txt;
+		for(auto content : contents){
+			if(content->isText())
+				txt += content->getUtf8Text().c_str();
+		}
+		mContent = txt;
+	}
 	mWasDownloaded = false;
-	mChatMessage->addListener(mChatMessageListener);
+	
 	mTimestamp = QDateTime::fromMSecsSinceEpoch(chatMessage->getTime() * 1000);
-	connect(this, &ChatMessageModel::remove, dynamic_cast<ChatRoomModel*>(parent), &ChatRoomModel::removeEntry);
-	
-	std::list<std::shared_ptr<linphone::Content>> contents = chatMessage->getContents();
-	QString txt;
-	for(auto content : contents){
-		if(content->isText())
-			txt += content->getUtf8Text().c_str();
-	}
-	mContent = txt;
-	//mIsOutgoing = chatMessage->isOutgoing() || chatMessage->getState() == linphone::ChatMessage::State::Idle;
-	
-	// Old workaround.
-	// It can exist messages with a not delivered status. It's a linphone core bug.
-	/*
-	linphone::ChatMessage::State state = chatMessage->getState();
-	if (state == linphone::ChatMessage::State::InProgress)
-		dest["status"] = ChatRoomModel::MessageStatusNotDelivered;
-	else
-		dest["status"] = static_cast<ChatRoomModel::MessageStatus>(chatMessage->getState());	
-	*/
-	
-	auto content = chatMessage->getFileTransferInformation();
-	if (content) {
-		mFileTransfertContent = std::make_shared<ContentModel>(this);
-		mFileTransfertContent->setContent(content);
-		
-	}
-	for(auto content : chatMessage->getContents()){
-		mContents << std::make_shared<ContentModel>(content, this);
-	}
-	
+
+	mContentListModel = std::make_shared<ContentListModel>(this);
 }
 
 ChatMessageModel::~ChatMessageModel(){
-	mChatMessage->removeListener(mChatMessageListener);
+	if(mChatMessage)
+		mChatMessage->removeListener(mChatMessageListener);
 }
 std::shared_ptr<ChatMessageModel> ChatMessageModel::create(std::shared_ptr<linphone::ChatMessage> chatMessage, QObject * parent){
 	auto model = std::make_shared<ChatMessageModel>(chatMessage, parent);
@@ -347,71 +160,57 @@ std::shared_ptr<linphone::ChatMessage> ChatMessageModel::getChatMessage(){
 	return mChatMessage;
 }
 std::shared_ptr<ContentModel> ChatMessageModel::getContentModel(std::shared_ptr<linphone::Content> content){
-	if(content == mFileTransfertContent->getContent())
-		return mFileTransfertContent;
-	for(auto c : mContents)
-		if(c->getContent() == content)
-			return c;
-	return nullptr;
-}
-
-ContentModel * ChatMessageModel::getContent(int i){
-	return mContents[i].get();
+	return mContentListModel->getContentModel(content);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 QString ChatMessageModel::getFromDisplayName() const{
-	return Utils::getDisplayName(mChatMessage->getFromAddress());	
+	return mChatMessage ? Utils::getDisplayName(mChatMessage->getFromAddress()) : "";
+}
+
+QString ChatMessageModel::getFromDisplayNameReplyMessage() const{
+	if( isReply())
+		return Utils::getDisplayName(mChatMessage->getReplyMessageSenderAddress());
+	else
+		return "";
 }
 
 QString ChatMessageModel::getFromSipAddress() const{
-	return Utils::cleanSipAddress(Utils::coreStringToAppString(mChatMessage->getFromAddress()->asStringUriOnly()));
+	return mChatMessage ? Utils::cleanSipAddress(Utils::coreStringToAppString(mChatMessage->getFromAddress()->asStringUriOnly())) : "";
 }
 
 QString ChatMessageModel::getToDisplayName() const{
-	return Utils::getDisplayName(mChatMessage->getToAddress());
+	return mChatMessage ? Utils::getDisplayName(mChatMessage->getToAddress()) : "";
 }
 
 QString ChatMessageModel::getToSipAddress() const{
-	return Utils::cleanSipAddress(Utils::coreStringToAppString(mChatMessage->getToAddress()->asStringUriOnly()));
+	return mChatMessage ? Utils::cleanSipAddress(Utils::coreStringToAppString(mChatMessage->getToAddress()->asStringUriOnly())) : "";
 }
 
 ContactModel * ChatMessageModel::getContactModel() const{
-	return CoreManager::getInstance()->getContactsListModel()->findContactModelFromSipAddress(Utils::coreStringToAppString(mChatMessage->getFromAddress()->asString()));
+	return mChatMessage ? CoreManager::getInstance()->getContactsListModel()->findContactModelFromSipAddress(Utils::coreStringToAppString(mChatMessage->getFromAddress()->asString())) : nullptr;
 }
 
 bool ChatMessageModel::isEphemeral() const{
-	return mChatMessage->isEphemeral();
+	return mChatMessage && mChatMessage->isEphemeral();
 }
 
 qint64 ChatMessageModel::getEphemeralExpireTime() const{
-	time_t t = mChatMessage->getEphemeralExpireTime();
+	time_t t = mChatMessage ? mChatMessage->getEphemeralExpireTime() : 0;
 	return 	t >0 ? t - QDateTime::currentSecsSinceEpoch() : 0;
-	//return QDateTime::fromMSecsSinceEpoch(mChatMessage->getEphemeralExpireTime() * 1000)
 }
 
 long ChatMessageModel::getEphemeralLifetime() const{
-	return mChatMessage->getEphemeralLifetime();
+	return mChatMessage ? mChatMessage->getEphemeralLifetime() : 0;
 }
 
 LinphoneEnums::ChatMessageState ChatMessageModel::getState() const{
-	return LinphoneEnums::fromLinphone(mChatMessage->getState());
+	return mChatMessage ? LinphoneEnums::fromLinphone(mChatMessage->getState()) : LinphoneEnums::ChatMessageStateIdle;
 }
 
 bool ChatMessageModel::isOutgoing() const{
-	return mChatMessage->isOutgoing();
-}
-
-ContentModel * ChatMessageModel::getFileContentModel() const{
-	return mFileTransfertContent.get();
-}
-
-QList<ContentModel*> ChatMessageModel::getContents() const{
-	QList<ContentModel*> models;
-	for(auto content : mContents)
-		models << content.get();
-	return models;
+	return mChatMessage && mChatMessage->isOutgoing();
 }
 
 ParticipantImdnStateProxyModel * ChatMessageModel::getProxyImdnStates(){
@@ -424,8 +223,38 @@ std::shared_ptr<ParticipantImdnStateListModel> ChatMessageModel::getParticipantI
 	return mParticipantImdnStateListModel;
 }
 
+ContentProxyModel * ChatMessageModel::getContentsProxy(){
+	return new ContentProxyModel(this);
+}
 
+std::shared_ptr<ContentListModel> ChatMessageModel::getContents() const{
+	return mContentListModel;
+}
 
+bool ChatMessageModel::isReply() const{
+	return mChatMessage && mChatMessage->isReply();
+}
+
+ChatMessageModel * ChatMessageModel::getReplyChatMessageModel() const{
+	return mReplyChatMessageModel.get();
+}
+
+bool ChatMessageModel::isForward() const{
+	return mChatMessage && mChatMessage->isForward();
+}
+
+QString ChatMessageModel::getForwardInfo() const{
+	return mChatMessage ? Utils::coreStringToAppString(mChatMessage->getForwardInfo()) : "";
+}
+
+QString ChatMessageModel::getForwardInfoDisplayName() const{
+	QString forwardInfo = getForwardInfo();
+	auto forwardAddress = Utils::interpretUrl(forwardInfo);
+	if(!forwardAddress || CoreManager::getInstance()->getAccountSettingsModel()->getUsedSipAddress()->weakEqual(forwardAddress))
+		return "";// myself
+	else
+		return Utils::getDisplayName(forwardInfo);
+}
 //-----------------------------------------------------------------------------------------------------------------------
 
 
@@ -453,7 +282,6 @@ void ChatMessageModel::resendMessage (){
 	}
 }
 
-
 void ChatMessageModel::deleteEvent(){
 	if (mChatMessage && mChatMessage->getFileTransferInformation()) {// Remove thumbnail
 		mChatMessage->cancelFileTransfer();
@@ -467,12 +295,13 @@ void ChatMessageModel::deleteEvent(){
 		}
 		mChatMessage->setAppdata("");// Remove completely Thumbnail from the message
 	}
-	mChatMessage->getChatRoom()->deleteMessage(mChatMessage);
+	if(mChatMessage)
+		mChatMessage->getChatRoom()->deleteMessage(mChatMessage);
 }
+
+
 void ChatMessageModel::updateFileTransferInformation(){
-	if( mFileTransfertContent && mFileTransfertContent->getContent() != getChatMessage()->getFileTransferInformation()){
-		mFileTransfertContent->setContent(getChatMessage()->getFileTransferInformation());
-	}
+	mContentListModel->updateContents(this);
 }
 
 void ChatMessageModel::onFileTransferRecv(const std::shared_ptr<linphone::ChatMessage> & message, const std::shared_ptr<linphone::Content> & content, const std::shared_ptr<const linphone::Buffer> & buffer){
@@ -484,25 +313,23 @@ std::shared_ptr<linphone::Buffer> ChatMessageModel::onFileTransferSend (const st
 	return nullptr;
 }
 
-void ChatMessageModel::onFileTransferProgressIndication (const std::shared_ptr<linphone::ChatMessage> &message,const std::shared_ptr<linphone::Content> &content,size_t offset,size_t) {
-	// content parameter is not in getContents() and getFileTransferInformation(). Question? What is it? Workaround : use the current file transfert.
-	// Note here : mFileTransfertContent->getContent() == getChatMessage()->getFileTransferInformation()
-	// Idea : 
-	//	auto model = getContentModel(content);
-	//	if(model)
-	//		model->setFileOffset(offset);
-	mFileTransfertContent->setFileOffset(offset);
+void ChatMessageModel::onFileTransferProgressIndication (const std::shared_ptr<linphone::ChatMessage> &message,const std::shared_ptr<linphone::Content> &content,size_t offset,size_t total) {
+	auto contentModel = mContentListModel->getContentModel(content);
+	if(contentModel) {
+		contentModel->setFileOffset(offset);
+		if (total == offset && mChatMessage && !mChatMessage->isOutgoing()) {
+			mContentListModel->downloaded();
+			bool allAreDownloaded = true;
+			for(auto content : mContentListModel->getContents())
+				allAreDownloaded &= content->mWasDownloaded;
+			setWasDownloaded(allAreDownloaded);
+			App::getInstance()->getNotifier()->notifyReceivedFileMessage(message, content);
+		}
+	}
 }
 
 void ChatMessageModel::onMsgStateChanged (const std::shared_ptr<linphone::ChatMessage> &message, linphone::ChatMessage::State state) {
 	updateFileTransferInformation();// On message state, file transfert information Content can be changed
-	// File message downloaded.
-	if (state == linphone::ChatMessage::State::FileTransferDone && !mChatMessage->isOutgoing()) {
-		if(mFileTransfertContent)
-			mFileTransfertContent->createThumbnail();
-		setWasDownloaded(true);
-		App::getInstance()->getNotifier()->notifyReceivedFileMessage(message);
-	}
 	emit stateChanged();
 }
 void ChatMessageModel::onParticipantImdnStateChanged(const std::shared_ptr<linphone::ChatMessage> & message, const std::shared_ptr<const linphone::ParticipantImdnState> & state){
@@ -513,6 +340,8 @@ void ChatMessageModel::onEphemeralMessageTimerStarted(const std::shared_ptr<linp
 }
 void ChatMessageModel::onEphemeralMessageDeleted(const std::shared_ptr<linphone::ChatMessage> & message) {
 	//emit remove(mSelf.lock());
+	if(!isOutgoing())
+		mContentListModel->removeDownloadedFiles();
 	emit remove(this);
 }
 //-------------------------------------------------------------------------------------------------------

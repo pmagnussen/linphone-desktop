@@ -1,5 +1,5 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.4
 import QtQuick.Shapes 1.10
 
 import Common.Styles 1.0
@@ -29,6 +29,13 @@ CheckBox {
 		wrapMode: Text.WordWrap
 		
 		verticalAlignment: Text.AlignVCenter
+		onLinkActivated: Qt.openUrlExternally(link)
+		MouseArea {
+			id: mouseArea
+			anchors.fill: parent
+			cursorShape: parent.hoveredLink != '' ? Qt.PointingHandCursor : Qt.ArrowCursor
+			acceptedButtons: Qt.NoButton
+		}
 	}
 	
 	font.pointSize: CheckBoxTextStyle.pointSize

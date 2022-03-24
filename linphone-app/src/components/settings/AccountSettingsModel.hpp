@@ -31,22 +31,22 @@
 // =============================================================================
 
 class AccountSettingsModel : public QObject {
-  Q_OBJECT;
+  Q_OBJECT
 
   // Selected proxy config.
-  Q_PROPERTY(QString username READ getUsername WRITE setUsername NOTIFY accountSettingsUpdated);
-  Q_PROPERTY(QString sipAddress READ getUsedSipAddressAsStringUriOnly NOTIFY accountSettingsUpdated);
-  Q_PROPERTY(QString fullSipAddress READ getUsedSipAddressAsString);
-  Q_PROPERTY(RegistrationState registrationState READ getRegistrationState NOTIFY accountSettingsUpdated);
+  Q_PROPERTY(QString username READ getUsername WRITE setUsername NOTIFY accountSettingsUpdated)
+  Q_PROPERTY(QString sipAddress READ getUsedSipAddressAsStringUriOnly NOTIFY accountSettingsUpdated)
+  Q_PROPERTY(QString fullSipAddress READ getUsedSipAddressAsString)
+  Q_PROPERTY(RegistrationState registrationState READ getRegistrationState NOTIFY accountSettingsUpdated)
   
   Q_PROPERTY(QString conferenceURI READ getConferenceURI NOTIFY accountSettingsUpdated)
 
   // Default info.
-  Q_PROPERTY(QString primaryDisplayName READ getPrimaryDisplayName WRITE setPrimaryDisplayName NOTIFY accountSettingsUpdated);
-  Q_PROPERTY(QString primaryUsername READ getPrimaryUsername WRITE setPrimaryUsername NOTIFY accountSettingsUpdated);
-  Q_PROPERTY(QString primarySipAddress READ getPrimarySipAddress NOTIFY accountSettingsUpdated);
+  Q_PROPERTY(QString primaryDisplayName READ getPrimaryDisplayName WRITE setPrimaryDisplayName NOTIFY accountSettingsUpdated)
+  Q_PROPERTY(QString primaryUsername READ getPrimaryUsername WRITE setPrimaryUsername NOTIFY accountSettingsUpdated)
+  Q_PROPERTY(QString primarySipAddress READ getPrimarySipAddress NOTIFY accountSettingsUpdated)
 
-  Q_PROPERTY(QVariantList accounts READ getAccounts NOTIFY accountSettingsUpdated);
+  Q_PROPERTY(QVariantList accounts READ getAccounts NOTIFY accountSettingsUpdated)
 
 public:
   enum RegistrationState {
@@ -74,9 +74,10 @@ public:
   Q_INVOKABLE void setDefaultProxyConfigFromSipAddress (const QString &sipAddress);
 
   Q_INVOKABLE bool addOrUpdateProxyConfig (const std::shared_ptr<linphone::ProxyConfig> &proxyConfig, const QVariantMap &data);
+  Q_INVOKABLE bool addOrUpdateProxyConfig (const QVariantMap &data);// Create default proxy config and apply data
   Q_INVOKABLE void removeProxyConfig (const std::shared_ptr<linphone::ProxyConfig> &proxyConfig);
 
-  Q_INVOKABLE std::shared_ptr<linphone::ProxyConfig> createProxyConfig ();
+  Q_INVOKABLE std::shared_ptr<linphone::ProxyConfig> createProxyConfig (const QString& assistantFile);
 
   Q_INVOKABLE void addAuthInfo (
     const std::shared_ptr<linphone::AuthInfo> &authInfo,

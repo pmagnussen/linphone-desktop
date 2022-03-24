@@ -20,7 +20,7 @@ import 'Message.js' as Logic
 Item {
 	id: container
 	property string lastTextSelected
-	property string content
+	property ChatMessageModel chatMessageModel
 	property int deliveryCount : 0
 	property bool deliveryVisible: false
 	
@@ -28,10 +28,14 @@ Item {
 	signal removeEntryRequested()
 	signal copyAllDone()
 	signal copySelectionDone()
+	signal replyClicked()
+	signal forwardClicked()
 
 	function open(){
 		messageMenu.popup()
 	}
+	
+	property string chatTextContent: chatMessageModel && chatMessageModel.content
 	
 	
 	Menu {
@@ -48,14 +52,14 @@ Item {
 			menuItemStyle : MenuItemStyle.aux
 			onTriggered: {
 				if( container.lastTextSelected == ''){
-					Clipboard.text = container.content
+					Clipboard.text = container.chatTextContent
 					container.copyAllDone();
 				}else{
 					Clipboard.text = container.lastTextSelected
 					container.copySelectionDone()
 				}
 			}
-			visible: content != ''
+			visible: chatTextContent != ''
 		}
 		
 		MenuItem {
@@ -65,9 +69,28 @@ Item {
 			iconSizeMenu: MenuItemStyle.speaker.iconSize
 			iconLayoutDirection: Qt.RightToLeft
 			menuItemStyle : MenuItemStyle.aux
-			onTriggered: TextToSpeech.say(container.content)
-			visible: content != ''
+			onTriggered: TextToSpeech.say(container.chatTextContent)
+			visible: chatTextContent != ''
 		}
+		MenuItem {
+			//: 'Forward' : Forward  a message from menu
+			text: qsTr('menuForward')
+			iconMenu: MenuItemStyle.forward.icon
+			iconSizeMenu: MenuItemStyle.forward.iconSize
+			iconLayoutDirection: Qt.RightToLeft
+			menuItemStyle : MenuItemStyle.aux
+			onTriggered: container.forwardClicked()
+		}
+		MenuItem {
+			//: 'Reply' : Reply to a message from menu
+			text: qsTr('menuReply')
+			iconMenu: MenuItemStyle.reply.icon
+			iconSizeMenu: MenuItemStyle.reply.iconSize
+			iconLayoutDirection: Qt.RightToLeft
+			menuItemStyle : MenuItemStyle.aux
+			onTriggered: container.replyClicked()
+		}
+		
 		MenuItem {
 			//: 'Hide delivery status' : Item menu that lead to IMDN of a message
 			text: (deliveryVisible ? qsTr('menuHideDeliveryStatus')
@@ -90,21 +113,5 @@ Item {
 			menuItemStyle : MenuItemStyle.auxRed
 			onTriggered: container.removeEntryRequested()
 		}
-	}
-	
-	
-	
-	// Handle hovered link.
-	MouseArea {
-		anchors.fill: parent
-		//height: messageMenu.height
-		//width: messageMenu.width
-		
-		acceptedButtons: Qt.RightButton
-		propagateComposedEvents:true
-		cursorShape: parent.hoveredLink
-					 ? Qt.PointingHandCursor
-					 : Qt.IBeamCursor
-		onClicked: mouse.button === Qt.RightButton && messageMenu.popup()
 	}
 }

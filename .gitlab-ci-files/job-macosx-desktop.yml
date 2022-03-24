@@ -5,8 +5,8 @@
 
 .build_all_script: &build_all_script |
   ccache -s
-  export Qt5_DIR=/usr/local/opt/qt/lib/cmake
-  export PATH=$PATH:/usr/local/opt/qt/bin
+  export Qt5_DIR=~/Qt/5.15.2/clang_64/lib/cmake/Qt5
+  export PATH=~/Qt/5.15.2/clang_64/bin:$PATH
   if [ -d "build" ]; then rm -rf build; fi;
   mkdir -p build/OUTPUT
   cd build
@@ -16,7 +16,7 @@
   echo $DEFAULT_MACOS_CMAKE_OPTIONS
   echo $CMAKE_OPTIONS
   echo $ADDITIONAL_BUILD_OPTIONS
-  cmake .. -G "$CMAKE_GENERATOR" -DLINPHONESDK_PLATFORM=Desktop -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 -DCMAKE_BUILD_TYPE=$CI_BUILD_TYPE $DEFAULT_MACOS_CMAKE_OPTIONS $XCODE_OPTIONS $CMAKE_OPTIONS $SCHEDULE_CMAKE_OPTIONS -DLINPHONE_BUILDER_SIGNING_IDENTITY="$MACOS_SIGNING_IDENTITY"
+  cmake .. -G "$CMAKE_GENERATOR" -DLINPHONESDK_PLATFORM=Desktop -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 -DCMAKE_BUILD_TYPE=$CI_BUILD_TYPE $DEFAULT_MACOS_CMAKE_OPTIONS $XCODE_OPTIONS $CMAKE_OPTIONS $SCHEDULE_CMAKE_OPTIONS -DLINPHONE_BUILDER_SIGNING_IDENTITY="$MACOS_SIGNING_IDENTITY" -DLINPHONESDK_MACOS_ARCHS="$LINPHONESDK_MACOS_ARCHS" -DLINPHONESDK_OPENSSL_ROOT_DIR_X86_64="$LINPHONESDK_OPENSSL_ROOT_DIR_X86_64" -DLINPHONESDK_OPENSSL_ROOT_DIR_ARM64="$LINPHONESDK_OPENSSL_ROOT_DIR_ARM64"
   cmake --build . --target install --config $CI_BUILD_TYPE $LBC_NODEBUG_OPTIONS -- $ADDITIONAL_BUILD_OPTIONS
   ccache -s
 
@@ -25,6 +25,10 @@
   tags: [ "macosx-xcode11" ]
   script:
     - *build_all_script
+  variables:
+    LINPHONESDK_MACOS_ARCHS: "x86_64"
+    LINPHONESDK_OPENSSL_ROOT_DIR_X86_64: "/usr/local/opt/openssl@1.1"
+    LINPHONESDK_OPENSSL_ROOT_DIR_ARM64: "/opt/homebrew/opt/openssl@1.1"
   artifacts:
     paths:
       - build/OUTPUT
@@ -92,7 +96,7 @@ job-macosx-makefile-package:
        - $PACKAGE_MACOSX
        - $DEPLOY_MACOSX
   variables:
-    CMAKE_OPTIONS: -DENABLE_APP_PACKAGING=YES
+    CMAKE_OPTIONS: -DENABLE_APP_PACKAGING=YES -DENABLE_G729=ON
   extends: job-macosx-makefile
   script:
     - *build_all_script

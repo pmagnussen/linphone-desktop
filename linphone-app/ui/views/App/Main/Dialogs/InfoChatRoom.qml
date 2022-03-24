@@ -27,7 +27,7 @@ DialogPlus {
 				chatRoomModel.leaveChatRoom();
 				exit(0)
 			}
-			enabled: !chatRoomModel.hasBeenLeft
+			enabled: !chatRoomModel.isReadOnly
 			visible: !chatRoomModel.isOneToOne
 		},Item{
 			Layout.fillWidth: true
@@ -38,7 +38,7 @@ DialogPlus {
 			capitalization: Font.AllUppercase
 			
 			onClicked: {
-				if(!chatRoomModel.hasBeenLeft)
+				if(!chatRoomModel.isReadOnly)
 					chatRoomModel.updateParticipants(selectedParticipants.getParticipants()) // Remove/New
 				exit(1)
 			}
@@ -58,7 +58,7 @@ DialogPlus {
 	height: InfoChatRoomStyle.height
 	width: InfoChatRoomStyle.width
 	
-	readonly property bool adminMode : chatRoomModel.isMeAdmin && !chatRoomModel.hasBeenLeft
+	readonly property bool adminMode : chatRoomModel.isMeAdmin && !chatRoomModel.isReadOnly
 	
 	// ---------------------------------------------------------------------------
 	ColumnLayout {
@@ -90,7 +90,7 @@ DialogPlus {
 					secure: chatRoomModel.haveEncryption,
 					visible: true,
 					secureIconVisibleHandler : function(entry) {
-									return chatRoomModel.haveEncryption && UtilsCpp.hasCapability(entry.sipAddress,  LinphoneEnums.FriendCapabilityLimeX3Dh);
+									return entry.sipAddress && chatRoomModel && chatRoomModel.haveEncryption && UtilsCpp.hasCapability(entry.sipAddress,  LinphoneEnums.FriendCapabilityLimeX3Dh);
  								},
 					handler: function (entry) {
 						selectedParticipants.addAddress(entry.sipAddress)
@@ -98,7 +98,7 @@ DialogPlus {
 				}]
 			
 			onEntryClicked: {
-				selectedParticipants.addAddress(entry)
+				selectedParticipants.addAddress(entry.sipAddress)
 			}
 		}
 		
@@ -172,26 +172,12 @@ DialogPlus {
 						chatRoomModel:dialog.chatRoomModel
 						onAddressAdded: smartSearchBar.addAddressToIgnore(sipAddress)
 						onAddressRemoved: smartSearchBar.removeAddressToIgnore(sipAddress)
+						showMe: dialog.adminMode
 						
 					}
 					
-					onEntryClicked: {//actions[0].handler(entry)
-						if(tooltip.delay>0) {
-							tooltip.oldDelay = tooltip.delay
-							tooltip.delay = 0
-						}
-						tooltip.show(entry.sipAddress, -1);
-					}
-					ToolTip{
-						id:tooltip	
-						property int oldDelay : 0
-						MouseArea{
-							anchors.fill:parent
-							onClicked : {
-								tooltip.hide()
-								tooltip.delay = tooltip.oldDelay
-							}
-						}					
+					onEntryClicked: {
+						contactItem.showContactAddress = !contactItem.showContactAddress
 					}
 				}
 			}

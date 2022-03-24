@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2021 Belledonne Communications SARL.
  *
  * This file is part of linphone-desktop
@@ -46,52 +46,9 @@ public:
 class ChatMessageModel;
 class ParticipantImdnStateProxyModel;
 class ParticipantImdnStateListModel;
-
-class ContentModel : public QObject{
-	Q_OBJECT
-public:
-	ContentModel(ChatMessageModel* chatModel);
-	ContentModel(std::shared_ptr<linphone::Content> content, ChatMessageModel* chatModel);
-	
-	Q_PROPERTY(quint64 fileSize READ getFileSize NOTIFY fileSizeChanged)
-	Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
-	Q_PROPERTY(quint64 fileOffset MEMBER mFileOffset WRITE setFileOffset NOTIFY fileOffsetChanged)
-	
-	Q_PROPERTY(QString thumbnail READ getThumbnail WRITE setThumbnail NOTIFY thumbnailChanged)
-	Q_PROPERTY(bool wasDownloaded MEMBER mWasDownloaded WRITE setWasDownloaded NOTIFY wasDownloadedChanged)
-	
-	std::shared_ptr<linphone::Content> getContent()const;	
-	
-	quint64 getFileSize() const;
-	QString getName() const;
-	QString getThumbnail() const;
-	
-	void setFileOffset(quint64 fileOffset);
-	void setThumbnail(const QString& data);
-	void setWasDownloaded(bool wasDownloaded);
-	void setContent(std::shared_ptr<linphone::Content> content);
-	
-	void createThumbnail ();
-	Q_INVOKABLE void downloadFile();
-	Q_INVOKABLE void openFile (bool showDirectory = false);	
-	
-	
-	QString mThumbnail;
-	bool mWasDownloaded;
-	quint64 mFileOffset;
-	
-signals:
-	void fileSizeChanged();
-	void nameChanged();
-	void thumbnailChanged();
-	void fileOffsetChanged();
-	void wasDownloadedChanged();
-	
-private:
-	std::shared_ptr<linphone::Content> mContent;
-	ChatMessageModel* mChatMessageModel;
-};
-Q_DECLARE_METATYPE(std::shared_ptr<ContentModel>)
+class ContentModel;
+class ContentListModel;
+class ContentProxyModel;
 
 class ChatMessageListener : public QObject, public linphone::ChatMessageListener {
 Q_OBJECT
@@ -135,6 +92,7 @@ public:
 	
 	
 	Q_PROPERTY(QString fromDisplayName READ getFromDisplayName CONSTANT)
+	Q_PROPERTY(QString fromDisplayNameReplyMessage READ getFromDisplayNameReplyMessage CONSTANT)
 	Q_PROPERTY(QString fromSipAddress READ getFromSipAddress CONSTANT)
 	Q_PROPERTY(QString toDisplayName READ getToDisplayName CONSTANT)
 	Q_PROPERTY(QString toSipAddress READ getToSipAddress CONSTANT)
@@ -149,19 +107,24 @@ public:
 	Q_PROPERTY(bool wasDownloaded MEMBER mWasDownloaded WRITE setWasDownloaded NOTIFY wasDownloadedChanged)
 	Q_PROPERTY(ChatRoomModel::EntryType type MEMBER mType CONSTANT)
 	Q_PROPERTY(QDateTime timestamp MEMBER mTimestamp CONSTANT)
-	//Q_PROPERTY(QString thumbnail MEMBER mThumbnail NOTIFY thumbnailChanged)
 	Q_PROPERTY(QString content MEMBER mContent NOTIFY contentChanged)
 	
-	Q_PROPERTY(ContentModel * fileContentModel READ getFileContentModel NOTIFY fileContentChanged)
-	//Q_PROPERTY(QList<ContentModel *> contents READ getContents CONSTANT)
+	
+	Q_PROPERTY(bool isReply READ isReply CONSTANT)
+	Q_PROPERTY(ChatMessageModel* replyChatMessageModel READ getReplyChatMessageModel CONSTANT)
+	
+	Q_PROPERTY(bool isForward READ isForward CONSTANT)
+	Q_PROPERTY(QString getForwardInfo READ getForwardInfo CONSTANT)
+	Q_PROPERTY(QString getForwardInfoDisplayName READ getForwardInfoDisplayName CONSTANT)
+	
 	
 	std::shared_ptr<linphone::ChatMessage> getChatMessage();
 	std::shared_ptr<ContentModel> getContentModel(std::shared_ptr<linphone::Content> content);
-	Q_INVOKABLE ContentModel * getContent(int i);
 	
 	//----------------------------------------------------------------------------
 	
 	QString getFromDisplayName() const;
+	QString getFromDisplayNameReplyMessage() const;
 	QString getFromSipAddress() const;
 	QString getToDisplayName() const;
 	QString getToSipAddress() const;
@@ -171,10 +134,17 @@ public:
 	Q_INVOKABLE long getEphemeralLifetime() const;
 	LinphoneEnums::ChatMessageState getState() const;
 	bool isOutgoing() const;
-	ContentModel * getFileContentModel() const;
-	QList<ContentModel*> getContents() const;
 	Q_INVOKABLE ParticipantImdnStateProxyModel * getProxyImdnStates();
 	std::shared_ptr<ParticipantImdnStateListModel> getParticipantImdnStates() const;
+	Q_INVOKABLE ContentProxyModel * getContentsProxy();
+	std::shared_ptr<ContentListModel> getContents() const;
+	
+	bool isReply() const;
+	ChatMessageModel * getReplyChatMessageModel() const;
+	
+	bool isForward() const;
+	QString getForwardInfo() const;
+	QString getForwardInfoDisplayName() const;
 	
 	//----------------------------------------------------------------------------
 	
@@ -214,11 +184,13 @@ signals:
 	
 	
 private:
-	QList<std::shared_ptr<ContentModel>> mContents;
 	std::shared_ptr<ContentModel> mFileTransfertContent;
 	std::shared_ptr<linphone::ChatMessage> mChatMessage;
 	std::shared_ptr<ParticipantImdnStateListModel> mParticipantImdnStateListModel;
 	std::shared_ptr<ChatMessageListener> mChatMessageListener;
+	std::shared_ptr<ContentListModel> mContentListModel;
+	
+	std::shared_ptr<ChatMessageModel> mReplyChatMessageModel;
 };
 Q_DECLARE_METATYPE(ChatMessageModel*)
 Q_DECLARE_METATYPE(std::shared_ptr<ChatMessageModel>)

@@ -111,8 +111,8 @@ QString CallModel::getFullLocalAddress () const {
 // -----------------------------------------------------------------------------
 
 ContactModel *CallModel::getContactModel() const{
-	auto contact = CoreManager::getInstance()->getContactsListModel()->findContactModelFromSipAddress(Utils::coreStringToAppString(mCall->getRemoteAddress()->asString()));
-	return contact;
+	QString cleanedAddress = Utils::cleanSipAddress(Utils::coreStringToAppString(mCall->getRemoteAddress()->asString()));
+	return CoreManager::getInstance()->getContactsListModel()->findContactModelFromSipAddress(cleanedAddress);
 }
 
 ChatRoomModel * CallModel::getChatRoomModel() const{
@@ -941,11 +941,10 @@ QString CallModel::generateSavedFilename () const {
 
 QString CallModel::generateSavedFilename (const QString &from, const QString &to) {
 	auto escape = [](const QString &str) {
-		constexpr char ReservedCharacters[] = "<>:\"/\\|\\?\\*";
+		constexpr char ReservedCharacters[] = "[<|>|:|\"|/|\\\\|\\?|\\*|\\+|\\|]+";
 		static QRegularExpression regexp(ReservedCharacters);
 		return QString(str).replace(regexp, "");
 	};
-	
 	return QStringLiteral("%1_%2_%3")
 			.arg(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss"))
 			.arg(escape(from))

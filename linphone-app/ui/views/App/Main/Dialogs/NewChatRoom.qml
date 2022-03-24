@@ -172,6 +172,7 @@ DialogPlus {
 						//: 'Give a subject' : Placeholder in a form about setting a subject
 						placeholderText : qsTr('subjectPlaceholder')
 						text:(chatRoomModel?chatRoomModel.getSubject():'')
+						Keys.onEnterPressed:  nextItemInFocusChain().forceActiveFocus()
 						Keys.onReturnPressed:  nextItemInFocusChain().forceActiveFocus()
 						TooltipArea{
 							//: 'Current subject of the Chat Room. It cannot be empty'
@@ -328,8 +329,8 @@ DialogPlus {
 							}]
 						
 						onEntryClicked: {
-								selectedParticipants.addAddress(entry)
-								smartSearchBar.addAddressToIgnore(entry);
+								selectedParticipants.addAddress(entry.sipAddress)
+								smartSearchBar.addAddressToIgnore(entry.sipAddress);
 								++lastContacts.reloadCount
 						}
 					}

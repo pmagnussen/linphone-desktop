@@ -80,6 +80,10 @@ void CoreHandlers::onCallEncryptionChanged (
 	emit callEncryptionChanged(call);
 }
 
+void CoreHandlers::onCallLogUpdated(const std::shared_ptr<linphone::Core> & core, const std::shared_ptr<linphone::CallLog> & callLog){
+	emit callLogUpdated(callLog);
+}
+
 void CoreHandlers::onCallStateChanged (
 		const shared_ptr<linphone::Core> &,
 		const shared_ptr<linphone::Call> &call,
@@ -191,7 +195,7 @@ void CoreHandlers::onMessageReceived (
 		const shared_ptr<linphone::ChatRoom> &chatRoom,
 		const shared_ptr<linphone::ChatMessage> &message
 		) {
-	if( message->isOutgoing()  )
+	if( !message || message->isOutgoing()  )
 		return;
 	const string contentType = message->getContentType();
 	
@@ -207,11 +211,11 @@ void CoreHandlers::onMessageReceived (
 		
 		// 2. Notify with Notification popup.
 		const App *app = App::getInstance();
-		if (!app->hasFocus() || !chatRoom->getLocalAddress()->weakEqual(coreManager->getAccountSettingsModel()->getUsedSipAddress()))
+		if (coreManager->getSettingsModel()->getChatNotificationsEnabled() && (!app->hasFocus() || !chatRoom->getLocalAddress()->weakEqual(coreManager->getAccountSettingsModel()->getUsedSipAddress())))
 			app->getNotifier()->notifyReceivedMessage(message);
 		
 		// 3. Notify with sound.
-		if (!settingsModel->getChatNotificationSoundEnabled())
+		if (!coreManager->getSettingsModel()->getChatNotificationsEnabled() || !settingsModel->getChatNotificationSoundEnabled())
 			return;
 		
 		if (

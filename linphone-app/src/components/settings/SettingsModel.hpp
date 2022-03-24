@@ -41,14 +41,23 @@ class SettingsModel : public QObject {
 	// ===========================================================================
 	
 	// Assistant. ----------------------------------------------------------------
-	
+
 	Q_PROPERTY(bool createAppSipAccountEnabled READ getCreateAppSipAccountEnabled WRITE setCreateAppSipAccountEnabled NOTIFY createAppSipAccountEnabledChanged)
 	Q_PROPERTY(bool fetchRemoteConfigurationEnabled READ getFetchRemoteConfigurationEnabled WRITE setFetchRemoteConfigurationEnabled NOTIFY fetchRemoteConfigurationEnabledChanged)
 	Q_PROPERTY(bool useAppSipAccountEnabled READ getUseAppSipAccountEnabled WRITE setUseAppSipAccountEnabled NOTIFY useAppSipAccountEnabledChanged)
 	Q_PROPERTY(bool useOtherSipAccountEnabled READ getUseOtherSipAccountEnabled WRITE setUseOtherSipAccountEnabled NOTIFY useOtherSipAccountEnabledChanged)
 	
 	Q_PROPERTY(bool assistantSupportsPhoneNumbers READ getAssistantSupportsPhoneNumbers WRITE setAssistantSupportsPhoneNumbers NOTIFY assistantSupportsPhoneNumbersChanged)
+	Q_PROPERTY(QString assistantRegistrationUrl READ getAssistantRegistrationUrl WRITE setAssistantRegistrationUrl NOTIFY assistantRegistrationUrlChanged)
+	Q_PROPERTY(QString assistantLoginUrl READ getAssistantLoginUrl WRITE setAssistantLoginUrl NOTIFY assistantLoginUrlChanged)
+	Q_PROPERTY(QString assistantLogoutUrl READ getAssistantLogoutUrl WRITE setAssistantLogoutUrl NOTIFY assistantLogoutUrlChanged)
 	
+	Q_PROPERTY(bool cguAccepted READ isCguAccepted WRITE acceptCgu NOTIFY cguAcceptedChanged)
+	
+	// SIP Accounts. -------------------------------------------------------------
+	
+	Q_PROPERTY(QString deviceName READ getDeviceName WRITE setDeviceName NOTIFY deviceNameChanged)
+
 	// Audio. --------------------------------------------------------------------
 	
 	Q_PROPERTY(bool captureGraphRunning READ getCaptureGraphRunning NOTIFY captureGraphRunningChanged)
@@ -100,6 +109,7 @@ class SettingsModel : public QObject {
 	
 	Q_PROPERTY(bool callRecorderEnabled READ getCallRecorderEnabled WRITE setCallRecorderEnabled NOTIFY callRecorderEnabledChanged)
 	Q_PROPERTY(bool automaticallyRecordCalls READ getAutomaticallyRecordCalls WRITE setAutomaticallyRecordCalls NOTIFY automaticallyRecordCallsChanged)
+	Q_PROPERTY(int autoDownloadMaxSize READ getAutoDownloadMaxSize WRITE setAutoDownloadMaxSize NOTIFY autoDownloadMaxSizeChanged)
 	
 	Q_PROPERTY(bool callPauseEnabled READ getCallPauseEnabled WRITE setCallPauseEnabled NOTIFY callPauseEnabledChanged)
 	Q_PROPERTY(bool muteMicrophoneEnabled READ getMuteMicrophoneEnabled WRITE setMuteMicrophoneEnabled NOTIFY muteMicrophoneEnabledChanged)
@@ -112,6 +122,8 @@ class SettingsModel : public QObject {
 	
 	Q_PROPERTY(bool conferenceEnabled READ getConferenceEnabled WRITE setConferenceEnabled NOTIFY conferenceEnabledChanged)
 	
+	
+	Q_PROPERTY(bool chatNotificationsEnabled READ getChatNotificationsEnabled WRITE setChatNotificationsEnabled NOTIFY chatNotificationsEnabledChanged)
 	Q_PROPERTY(bool chatNotificationSoundEnabled READ getChatNotificationSoundEnabled WRITE setChatNotificationSoundEnabled NOTIFY chatNotificationSoundEnabledChanged)
 	Q_PROPERTY(QString chatNotificationSoundPath READ getChatNotificationSoundPath WRITE setChatNotificationSoundPath NOTIFY chatNotificationSoundPathChanged)
 	
@@ -186,6 +198,7 @@ class SettingsModel : public QObject {
 	Q_PROPERTY(bool showStartVideoCallButton READ getShowStartVideoCallButton CONSTANT)
 	
 	Q_PROPERTY(bool mipmapEnabled READ isMipmapEnabled WRITE setMipmapEnabled NOTIFY mipmapEnabledChanged)
+	Q_PROPERTY(bool useMinimalTimelineFilter READ useMinimalTimelineFilter WRITE setUseMinimalTimelineFilter NOTIFY useMinimalTimelineFilterChanged)
 	
 	// Advanced. -----------------------------------------------------------------
 	
@@ -235,6 +248,26 @@ public:
 	bool getAssistantSupportsPhoneNumbers () const;
 	void setAssistantSupportsPhoneNumbers (bool status);
 	
+	Q_INVOKABLE bool useWebview() const;
+
+	QString getAssistantRegistrationUrl () const;
+	void setAssistantRegistrationUrl (QString url);
+
+	QString getAssistantLoginUrl () const;
+	void setAssistantLoginUrl (QString url);
+	
+	QString getAssistantLogoutUrl () const;
+	void setAssistantLogoutUrl (QString url);
+	
+	bool isCguAccepted () const;
+	void acceptCgu(const bool accept);
+	
+	// SIP Accounts. -------------------------------------------------------------
+	
+	static QString getDeviceName(const std::shared_ptr<linphone::Config>& config);
+	QString getDeviceName() const;
+	void setDeviceName(const QString& deviceName);
+
 	// Audio. --------------------------------------------------------------------
 	
 	void createCaptureGraph();
@@ -325,6 +358,9 @@ public:
 	bool getAutomaticallyRecordCalls () const;
 	void setAutomaticallyRecordCalls (bool status);
 	
+	int getAutoDownloadMaxSize() const;
+	void setAutoDownloadMaxSize(int maxSize);
+	
 	bool getCallPauseEnabled () const;
 	void setCallPauseEnabled (bool status);
 	
@@ -345,6 +381,9 @@ public:
 	
 	bool getConferenceEnabled () const;
 	void setConferenceEnabled (bool status);
+	
+	bool getChatNotificationsEnabled () const;
+	void setChatNotificationsEnabled (bool status);
 	
 	bool getChatNotificationSoundEnabled () const;
 	void setChatNotificationSoundEnabled (bool status);
@@ -477,6 +516,9 @@ public:
 	bool isMipmapEnabled() const;
 	void setMipmapEnabled(const bool& enabled);
 	
+	bool useMinimalTimelineFilter() const;
+	void setUseMinimalTimelineFilter(const bool& useMinimal);
+	
 	// Advanced. ---------------------------------------------------------------------------
 	
 	
@@ -529,7 +571,17 @@ signals:
 	void useOtherSipAccountEnabledChanged (bool status);
 	
 	void assistantSupportsPhoneNumbersChanged (bool status);
+
+	void assistantRegistrationUrlChanged (QString url);
+	void assistantLoginUrlChanged (QString url);
+	void assistantLogoutUrlChanged (QString url);
 	
+	void cguAcceptedChanged(bool accepted);
+	
+	// SIP Accounts. -------------------------------------------------------------
+	
+	void deviceNameChanged();
+
 	// Audio. --------------------------------------------------------------------
 	
 	void captureGraphRunningChanged(bool running);
@@ -577,6 +629,7 @@ signals:
 	
 	void callRecorderEnabledChanged (bool status);
 	void automaticallyRecordCallsChanged (bool status);
+	void autoDownloadMaxSizeChanged (int maxSize);
 	
 	void callPauseEnabledChanged (bool status);
 	void muteMicrophoneEnabledChanged (bool status);
@@ -588,6 +641,7 @@ signals:
 	
 	void conferenceEnabledChanged (bool status);
 	
+	void chatNotificationsEnabledChanged (bool status);
 	void chatNotificationSoundEnabledChanged (bool status);
 	void chatNotificationSoundPathChanged (const QString &path);
 	
@@ -645,6 +699,7 @@ signals:
 	
 	void exitOnCloseChanged (bool value);
 	void mipmapEnabledChanged();
+	void useMinimalTimelineFilterChanged();
 	
 	void checkForUpdateEnabledChanged();
 	void versionCheckUrlChanged();

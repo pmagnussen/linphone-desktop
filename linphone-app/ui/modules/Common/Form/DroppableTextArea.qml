@@ -4,6 +4,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.12
 
 import Common 1.0
+import Linphone 1.0
 import Common.Styles 1.0
 import Utils 1.0
 
@@ -18,15 +19,20 @@ Item {
 	property alias placeholderText: textArea.placeholderText
 	property alias text: textArea.text
 	property alias cursorPosition: textArea.cursorPosition
+	property alias recordAudioToggled: recordAudioButton.toggled
 	
 	property bool dropEnabled: true
 	property string dropDisabledReason
 	property bool isEphemeral : false
 	
+	property int textLeftMargin: (fileChooserButton.visible? fileChooserButton.totalWidth + DroppableTextAreaStyle.fileChooserButton.margins: 0)
+	property int textRightMargin: sendButton.visible ? sendButton.totalWidth + DroppableTextAreaStyle.fileChooserButton.margins : 0
+	
 	// ---------------------------------------------------------------------------
 	
 	signal dropped (var files)
 	signal validText (string text)
+	signal audioRecordRequest()
 	
 	// ---------------------------------------------------------------------------
 	
@@ -51,10 +57,11 @@ Item {
 		// ---------------------------------------------------------------------------
 		RowLayout{
 			anchors.fill: parent
-			spacing: DroppableTextAreaStyle.fileChooserButton.margins
+			spacing: 0
 			// Handle click to select files.
 			ActionButton {
 				id: fileChooserButton
+				property int totalWidth: width
 				
 				Layout.leftMargin: DroppableTextAreaStyle.fileChooserButton.margins
 				Layout.alignment: Qt.AlignVCenter
@@ -82,20 +89,17 @@ Item {
 			}
 			// Record audio
 			ActionButton {
-				visible:false && droppableTextArea.enabled// TODO
 				id: recordAudioButton
+				visible: droppableTextArea.enabled
 				
-				//anchors.verticalCenter: parent.verticalCenter
 				Layout.alignment: Qt.AlignVCenter
-
+				Layout.leftMargin: 0
 				enabled: droppableTextArea.dropEnabled
 				isCustom: true
 				backgroundRadius: 8
 				colorSet: DroppableTextAreaStyle.chatMicro
 				
-				useStates:false
-				
-				onClicked: {console.log('Record audio request')}
+				onClicked: droppableTextArea.audioRecordRequest()
 				
 			}
 			
@@ -107,6 +111,7 @@ Item {
 				Layout.maximumHeight: parent.height-20
 				Layout.topMargin: 10
 				Layout.bottomMargin: 10
+				Layout.leftMargin: 2
 				//anchors.fill: parent
 				boundsBehavior: Flickable.StopAtBounds
 				clip:true
@@ -133,9 +138,7 @@ Item {
 						}
 					}
 					function handleValidation () {
-						if (text.length !== 0) {
 							validText(text)
-						}
 					}
 
 					background: Rectangle {
@@ -189,8 +192,9 @@ Item {
 			// Handle click to select files.
 			ActionButton {
 				id: sendButton
-				Layout.rightMargin: DroppableTextAreaStyle.fileChooserButton.margins+15
-				Layout.leftMargin: 10
+				property int totalWidth: Layout.rightMargin + Layout.leftMargin + width
+				Layout.rightMargin: droppableTextArea.isEphemeral ? 20 : 15
+				Layout.leftMargin: droppableTextArea.isEphemeral ? 5 : 10
 				Layout.alignment: Qt.AlignVCenter
 				visible: droppableTextArea.enabled
 				isCustom: true
@@ -205,7 +209,7 @@ Item {
 					iconSize: DroppableTextAreaStyle.ephemeralTimer.iconSize
 					anchors.right:parent.right
 					anchors.bottom : parent.bottom
-					anchors.rightMargin:-10
+					anchors.rightMargin:-20
 				}
 			}
 		}

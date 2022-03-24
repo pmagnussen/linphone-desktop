@@ -272,12 +272,15 @@ void TimelineListModel::updateTimelines () {
 		}else
 			++itTimeline;
 	}
-	// Add new
+	// Add new.
+// Call logs optimization : store all the list and check on it for each chat room instead of loading call logs on each chat room. See TimelineModel()
+	std::list<std::shared_ptr<linphone::CallLog>> callLogs = coreManager->getCore()->getCallLogs();
+//	
 	for(auto dbChatRoom : allChatRooms){
 		auto haveTimeline = getTimeline(dbChatRoom, false);
-		if(!haveTimeline){// Create a new Timeline if needed
+		if(!haveTimeline && dbChatRoom){// Create a new Timeline if needed
 			
-			std::shared_ptr<TimelineModel> model = TimelineModel::create(dbChatRoom);
+			std::shared_ptr<TimelineModel> model = TimelineModel::create(dbChatRoom, callLogs);
 			if( model){
 				connect(model.get(), SIGNAL(selectedChanged(bool)), this, SLOT(onSelectedHasChanged(bool)));
 				connect(model->getChatRoomModel(), &ChatRoomModel::allEntriesRemoved, this, &TimelineListModel::removeChatRoomModel);
@@ -306,7 +309,7 @@ void TimelineListModel::remove(std::shared_ptr<TimelineModel> model){
 	}
 }
 void TimelineListModel::removeChatRoomModel(std::shared_ptr<ChatRoomModel> model){
-	if(!model || (model->getChatRoom()->isEmpty() && (model->hasBeenLeft() || !model->isGroupEnabled()))){
+	if(!model || (model->getChatRoom()->isEmpty() && (model->isReadOnly() || !model->isGroupEnabled()))){
 		auto itTimeline = mTimelines.begin();
 		while(itTimeline != mTimelines.end()) {
 			if((*itTimeline)->mChatRoomModel == model){
@@ -354,7 +357,8 @@ void TimelineListModel::onCallCreated(const std::shared_ptr<linphone::Call> &cal
 		bool isOutgoing = (call->getDir() == linphone::Call::Dir::Outgoing) ;
 		bool found = false;
 		auto callLog = call->getCallLog();
-		auto callLocalAddress = callLog->getLocalAddress();
+		auto callLocalAddress = callLog->getLocalAddress()->clone();
+		callLocalAddress->clean();
 		auto currentParams = call->getCurrentParams();
 		bool isEncrypted = currentParams->getMediaEncryption() != linphone::MediaEncryption::None;
 		bool createSecureChatRoom = false;
@@ -369,6 +373,7 @@ void TimelineListModel::onCallCreated(const std::shared_ptr<linphone::Call> &cal
 			createSecureChatRoom = true;
 		}
 		participants.push_back(callLog->getRemoteAddress()->clone());
+		participants.back()->clean();// Not cleaning allows chatting to a specific device but the current design is not adapted to show them
 		auto chatRoom = core->searchChatRoom(params, callLocalAddress
 											 , nullptr//callLog->getRemoteAddress()
 											 , participants);
@@ -387,7 +392,7 @@ void TimelineListModel::onCallCreated(const std::shared_ptr<linphone::Call> &cal
 			auto remoteAddress = callLog->getRemoteAddress()->clone();
 			remoteAddress->clean();
 			participants << Utils::coreStringToAppString(remoteAddress->asStringUriOnly());
-			CoreManager::getInstance()->getCallsListModel()->createChatRoom("", (createSecureChatRoom?1:0),  participants, isOutgoing);
+			CoreManager::getInstance()->getCallsListModel()->createChatRoom("", (createSecureChatRoom?1:0),  callLocalAddress, participants, isOutgoing);
 		}
 }
 

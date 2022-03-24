@@ -12,16 +12,23 @@ import Utils 1.0
 
 Item {
   implicitHeight: message.height
-  width: parent.width
+  //width: parent.width
+  Layout.fillWidth: true
   
   signal copyAllDone()
   signal copySelectionDone()
+  signal replyClicked()
+  signal forwardClicked()
+  signal goToMessage(ChatMessageModel message)
 
   Message {
     id: message
     
 	onCopyAllDone: parent.copyAllDone()
 	onCopySelectionDone: parent.copySelectionDone()
+	onReplyClicked: parent.replyClicked()
+	onForwardClicked: parent.forwardClicked()
+	onGoToMessage: parent.goToMessage(message)
 	
     anchors {
       left: parent.left
@@ -29,7 +36,6 @@ Item {
       right: parent.right
     }
     backgroundColor: ChatStyle.entry.message.outgoing.backgroundColor
-    color: ChatStyle.entry.message.outgoing.text.color
     width: parent.width
 
     Row {
@@ -57,14 +63,15 @@ Item {
             id:retryAction
             anchors.fill: parent
             visible: iconId.isError || $chatEntry.state == LinphoneEnums.ChatMessageStateIdle
-            onClicked: proxyModel.resendMessage(index)
+            onClicked: $chatEntry.resendMessage()
           }
 
           TooltipArea {
             id:tooltip
+            visible: text != ''
             text: iconId.isError
               ? qsTr('messageError')
-              : (iconId.isRead ? qsTr('messageRead') : qsTr('messageDelivered'))
+              : (iconId.isRead ? qsTr('messageRead') : (isDelivered ? qsTr('messageDelivered') : ''))
               hoveringCursor : retryAction.visible?Qt.PointingHandCursor:Qt.ArrowCursor
           }
         }

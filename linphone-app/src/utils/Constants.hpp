@@ -42,7 +42,7 @@ public:
 	static constexpr char ApplicationMinimalQtVersion[] = "5.10.0";
 	static constexpr char DefaultFont[] = "Noto Sans";
 	
-	static constexpr size_t MaxLogsCollectionSize = 10485760; // 10MB.
+	static constexpr size_t MaxLogsCollectionSize = 10485760*5; // 50MB.
 	
 	
 #ifdef ENABLE_UPDATE_CHECK
@@ -57,6 +57,12 @@ public:
 	static constexpr char DownloadUrl[] = "https://www.linphone.org/technical-corner/linphone";
 	static constexpr char VersionCheckUrl[] = "https://linphone.org/releases";
 	static constexpr char PasswordRecoveryUrl[] = "https://subscribe.linphone.org/login";
+	static constexpr char CguUrl[] = "https://www.linphone.org/general-terms";
+	static constexpr char PrivatePolicyUrl[] = "https://www.linphone.org/privacy-policy";
+	static constexpr char ContactUrl[] = "https://www.linphone.org/contact";
+	static constexpr char TranslationUrl[] = "https://weblate.linphone.org/projects/linphone-desktop/";
+	
+	
 	
 	static constexpr char LinphoneBZip2_exe[] = "http://www.linphone.org/releases/windows/tools/bzip2/bzip2.exe";
 	static constexpr char LinphoneBZip2_dll[] = "http://www.linphone.org/releases/windows/tools/bzip2/bzip2.dll";
@@ -67,6 +73,14 @@ public:
 	static constexpr char RemoteProvisioningURL[] = "https://subscribe.linphone.org/flexiapi/provisioning";
 		
 	Q_PROPERTY(QString PasswordRecoveryUrl MEMBER PasswordRecoveryUrl CONSTANT)
+	Q_PROPERTY(QString CguUrl MEMBER CguUrl CONSTANT)
+	Q_PROPERTY(QString PrivatePolicyUrl MEMBER PrivatePolicyUrl CONSTANT)
+	Q_PROPERTY(QString ContactUrl MEMBER ContactUrl CONSTANT)
+	Q_PROPERTY(QString TranslationUrl MEMBER TranslationUrl CONSTANT)
+	
+	static constexpr char DefaultAssistantRegistrationUrl[] = "https://subscribe.linphone.org/register";
+	static constexpr char DefaultAssistantLoginUrl[] = "https://subscribe.linphone.org/login";
+	static constexpr char DefaultAssistantLogoutUrl[] = "https://subscribe.linphone.org/logout";
 	
 	// Max image size in bytes. (100Kb)
 	static constexpr qint64 MaxImageSize = 102400;// In Bytes.
@@ -78,6 +92,7 @@ public:
 	static constexpr char PathAvatars[] = "/avatars/";
 	static constexpr char PathCaptures[] = "/" EXECUTABLE_NAME "/captures/";
 	static constexpr char PathCodecs[] =  "/codecs/";
+	static constexpr char PathData[] =  "/" EXECUTABLE_NAME;
 	static constexpr char PathTools[] =  "/tools/";
 	static constexpr char PathLogs[] = "/logs/";
 #ifdef APPLE
@@ -92,7 +107,7 @@ public:
 	
 	static constexpr char PathCallHistoryList[] = "/call-history.db";
 	static constexpr char PathConfig[] = "/linphonerc";
-	static constexpr char PathDatabase[] = "/" EXECUTABLE_NAME ".db";
+	static constexpr char PathDatabase[] = "/linphone.db";
 	static constexpr char PathFactoryConfig[] = "/" EXECUTABLE_NAME "/linphonerc-factory";
 	static constexpr char PathRootCa[] = "/" EXECUTABLE_NAME "/rootca.pem";
 	static constexpr char PathFriendsList[] = "/friends.db";
@@ -120,7 +135,8 @@ public:
 	static constexpr char VcardScheme[] = EXECUTABLE_NAME "-desktop:/";
 	static constexpr int CbsCallInterval = 20;
 	static constexpr char RcVersionName[] = "rc_version";
-	static constexpr int RcVersionCurrent = 2;// 2 = Conference URI
+	static constexpr int RcVersionCurrent = 3;	// 2 = Conference URI
+												// 3 = CPIM on basic chat rooms
 	
 //--------------------------------------------------------------------------------	
 //								CISCO

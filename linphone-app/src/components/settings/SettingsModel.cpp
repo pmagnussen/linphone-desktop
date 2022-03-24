@@ -26,6 +26,8 @@
 #include <cstdlib>
 #include <cmath>
 
+#include "config.h"
+
 #include "app/App.hpp"
 #include "app/logger/Logger.hpp"
 #include "app/paths/Paths.hpp"
@@ -161,6 +163,71 @@ bool SettingsModel::getAssistantSupportsPhoneNumbers () const {
 void SettingsModel::setAssistantSupportsPhoneNumbers (bool status) {
 	mConfig->setInt(UiSection, "assistant_supports_phone_numbers", status);
 	emit assistantSupportsPhoneNumbersChanged(status);
+}
+
+bool SettingsModel::useWebview() const{
+#ifdef ENABLE_APP_WEBVIEW
+	return true;
+#else
+	return false;
+#endif
+}
+
+QString SettingsModel::getAssistantRegistrationUrl () const {
+	return Utils::coreStringToAppString(mConfig->getString(UiSection, "assistant_registration_url", Constants::DefaultAssistantRegistrationUrl));
+}
+
+void SettingsModel::setAssistantRegistrationUrl (QString url) {
+	mConfig->setString(UiSection, "assistant_registration_url", Utils::appStringToCoreString(url));
+	emit assistantRegistrationUrlChanged(url);
+}
+
+QString SettingsModel::getAssistantLoginUrl () const {
+	return Utils::coreStringToAppString(mConfig->getString(UiSection, "assistant_login_url", Constants::DefaultAssistantLoginUrl));
+}
+
+void SettingsModel::setAssistantLoginUrl (QString url) {
+	mConfig->setString(UiSection, "assistant_login_url", Utils::appStringToCoreString(url));
+	emit assistantLoginUrlChanged(url);
+}
+
+QString SettingsModel::getAssistantLogoutUrl () const {
+	return Utils::coreStringToAppString(mConfig->getString(UiSection, "assistant_logout_url", Constants::DefaultAssistantLogoutUrl));
+}
+
+void SettingsModel::setAssistantLogoutUrl (QString url) {
+	mConfig->setString(UiSection, "assistant_logout_url", Utils::appStringToCoreString(url));
+	emit assistantLogoutUrlChanged(url);
+}
+
+bool SettingsModel::isCguAccepted () const{
+	return !!mConfig->getInt(UiSection, "read_and_agree_terms_and_privacy", 0);
+}
+
+void SettingsModel::acceptCgu(const bool accept){
+	bool oldAccept = isCguAccepted();
+	if( oldAccept != accept){
+		mConfig->setInt(UiSection, "read_and_agree_terms_and_privacy", accept);
+		emit cguAcceptedChanged(accept);
+	}
+}
+
+// =============================================================================
+// SIP Accounts.
+// =============================================================================
+
+QString SettingsModel::getDeviceName(const std::shared_ptr<linphone::Config>& config){
+	return Utils::coreStringToAppString(config->getString(UiSection, "device_name", Utils::appStringToCoreString(QSysInfo::machineHostName())));
+}
+
+QString SettingsModel::getDeviceName() const{
+	return getDeviceName(mConfig);
+}
+
+void SettingsModel::setDeviceName(const QString& deviceName){
+	mConfig->setString(UiSection, "device_name", Utils::appStringToCoreString(deviceName));
+	emit deviceNameChanged();
+	CoreManager::getInstance()->updateUserAgent();
 }
 
 // =============================================================================
@@ -582,6 +649,15 @@ void SettingsModel::setAutomaticallyRecordCalls (bool status) {
 	emit automaticallyRecordCallsChanged(status);
 }
 
+int SettingsModel::getAutoDownloadMaxSize() const{
+	return CoreManager::getInstance()->getCore()->getMaxSizeForAutoDownloadIncomingFiles();
+}
+
+void SettingsModel::setAutoDownloadMaxSize(int maxSize){
+	CoreManager::getInstance()->getCore()->setMaxSizeForAutoDownloadIncomingFiles(maxSize);
+	emit autoDownloadMaxSizeChanged(maxSize);
+}
+	
 // -----------------------------------------------------------------------------
 
 bool SettingsModel::getCallPauseEnabled () const {
@@ -658,6 +734,17 @@ bool SettingsModel::getConferenceEnabled () const {
 void SettingsModel::setConferenceEnabled (bool status) {
 	mConfig->setInt(UiSection, "conference_enabled", status);
 	emit conferenceEnabledChanged(status);
+}
+
+// -----------------------------------------------------------------------------
+
+bool SettingsModel::getChatNotificationsEnabled () const {
+	return !!mConfig->getInt(UiSection, "chat_notifications_enabled", 1);
+}
+
+void SettingsModel::setChatNotificationsEnabled (bool status) {
+	mConfig->setInt(UiSection, "chat_notifications_enabled", status);
+	emit chatNotificationsEnabledChanged(status);
 }
 
 // -----------------------------------------------------------------------------
@@ -1296,18 +1383,23 @@ bool SettingsModel::getShowStartVideoCallButton ()const{
 }
 
 bool SettingsModel::isMipmapEnabled() const{
-#ifdef __APPLE__
-	return !!mConfig->getInt(UiSection, "mipmap_enabled", 1);
-#else
 	return !!mConfig->getInt(UiSection, "mipmap_enabled", 0);
-#endif
 }
 
 void SettingsModel::setMipmapEnabled(const bool& enabled){
 	mConfig->setInt(UiSection, "mipmap_enabled", enabled);
 	emit mipmapEnabledChanged();
 }
-	
+
+bool SettingsModel::useMinimalTimelineFilter() const{
+	return !!mConfig->getInt(UiSection, "use_minimal_timeline_filter", 1);
+}
+
+void SettingsModel::setUseMinimalTimelineFilter(const bool& useMinimal) {
+	mConfig->setInt(UiSection, "use_minimal_timeline_filter", useMinimal);
+	emit useMinimalTimelineFilterChanged();
+}
+
 // =============================================================================
 // Advanced.
 // =============================================================================

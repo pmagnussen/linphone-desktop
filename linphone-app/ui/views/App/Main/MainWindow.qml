@@ -112,8 +112,8 @@ ApplicationWindow {
 						
 						//: 'Hide Timeline' : Tooltip for a button that hide the timeline
 						tooltipText : (leftPanel.visible?qsTr('hideTimeline')
-						//: 'Open Timeline' : Tooltip for a button that open the timeline
-							:qsTr('openTimeline'))
+														  //: 'Open Timeline' : Tooltip for a button that open the timeline
+														:qsTr('openTimeline'))
 						iconSize: MainWindowStyle.panelButtonSize
 						//autoIcon: true
 						onClicked: leftPanel.visible = !leftPanel.visible
@@ -186,9 +186,9 @@ ApplicationWindow {
 						
 						onEntryClicked: {
 							if (SettingsModel.contactsEnabled) {
-								window.setView('ContactEdit', { sipAddress: entry })
+								window.setView('ContactEdit', { sipAddress: entry.sipAddress })
 							} else {
-								CallsListModel.createChatRoom( '', false, [entry], true )
+								CallsListModel.createChatRoom( '', false, [entry.sipAddress], true )
 							}
 						}
 						
@@ -203,10 +203,10 @@ ApplicationWindow {
 						isCustom: true
 						backgroundRadius: 4
 						colorSet: MainWindowStyle.buttons.newChatGroup
-											
+
 						//: 'Open Conference' : Tooltip to illustrate a button
 						tooltipText : qsTr('newChatRoom')
-						visible: SettingsModel.standardChatEnabled || SettingsModel.secureChatEnabled 
+						visible: SettingsModel.standardChatEnabled || SettingsModel.secureChatEnabled
 						//autoIcon: true
 						onClicked: {
 							window.detachVirtualWindow()
@@ -232,7 +232,8 @@ ApplicationWindow {
 						colorSet: MainWindowStyle.buttons.burgerMenu
 						visible: Qt.platform.os !== 'osx'
 						
-						onClicked: menuBar.open()
+						toggled: menuBar.isOpenned
+						onClicked: toggled ? menuBar.close() : menuBar.open()// a bit useless as Menu will depopup on losing focus but this code is kept for giving idea
 						MainWindowMenuBar {
 							id: menuBar
 						}
@@ -242,10 +243,7 @@ ApplicationWindow {
 				}
 				
 			}
-			Loader{
-				active:Qt.platform.os === 'osx'
-				sourceComponent:MainWindowTopMenuBar{}
-			}
+
 			// -----------------------------------------------------------------------
 			// Content.
 			// -----------------------------------------------------------------------
@@ -282,7 +280,7 @@ ApplicationWindow {
 							visible: SettingsModel.contactsEnabled
 							
 							onSelected: {
-								timeline.model.unselectAll() 
+								timeline.model.unselectAll()
 								setView('Contacts')
 							}
 							onClicked:{
@@ -319,12 +317,14 @@ ApplicationWindow {
 						Layout.fillWidth: true
 						model: TimelineProxyModel{}
 						
-						onEntrySelected:{ 
+						onEntrySelected:{
 							if( entry ) {
-								window.setView('Conversation', {
-												   chatRoomModel:entry.chatRoomModel
-												   
+								if( entry.selected){
+									console.log("Load conversation from entry selected on timeline")
+									window.setView('Conversation', {
+												chatRoomModel:entry.chatRoomModel
 											   })
+								}
 							}else{
 								
 								window.setView('Home', {})
@@ -353,6 +353,12 @@ ApplicationWindow {
 			}
 		}
 	}
+	Loader{
+		id: customMenuBar
+		active:Qt.platform.os === 'osx'
+		sourceComponent:MainWindowTopMenuBar{}
+	}
+	Component.onCompleted: if(Qt.platform.os === 'osx') menuBar = customMenuBar
 	// ---------------------------------------------------------------------------
 	// Url handlers.
 	// ---------------------------------------------------------------------------
@@ -360,11 +366,14 @@ ApplicationWindow {
 	Connections {
 		target: UrlHandlers
 		
-		onSip: window.setView('Conversation', {
+		onSip: {
+		console.log("Change conversation from url handler")
+			 window.setView('Conversation', {
 								  peerAddress: sipAddress,
 								  localAddress: AccountSettingsModel.sipAddress,
 								  fullPeerAddress: sipAddress,
 								  fullLocalAddress: AccountSettingsModel.fullSipAddress
 							  })
+							 }
 	}
 }

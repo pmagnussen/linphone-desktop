@@ -11,8 +11,13 @@ import LinphoneUtils 1.0
 RowLayout {
 	id:mainRow
 	
+	Layout.fillWidth: true
+	
 	signal copyAllDone()
 	signal copySelectionDone()
+	signal replyClicked()
+	signal forwardClicked()
+	signal goToMessage(ChatMessageModel message)
   
 	implicitHeight: message.height
 	spacing: 0
@@ -61,6 +66,9 @@ RowLayout {
 		
 		onCopyAllDone: parent.copyAllDone()
 		onCopySelectionDone: parent.copySelectionDone()
+		onReplyClicked: parent.replyClicked()
+		onForwardClicked: parent.forwardClicked()
+		onGoToMessage: parent.goToMessage(message)
 		
 		Layout.fillWidth: true
 		
@@ -69,6 +77,5 @@ RowLayout {
 		Layout.minimumWidth: 1
 		
 		backgroundColor: ChatStyle.entry.message.incoming.backgroundColor
-		color: ChatStyle.entry.message.incoming.text.color
 	}
 }

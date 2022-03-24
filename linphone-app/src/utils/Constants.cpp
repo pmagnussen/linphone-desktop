@@ -32,6 +32,7 @@ constexpr char Constants::PathAssistantConfig[];
 constexpr char Constants::PathAvatars[];
 constexpr char Constants::PathCaptures[];
 constexpr char Constants::PathCodecs[];
+constexpr char Constants::PathData[];
 constexpr char Constants::PathTools[];
 constexpr char Constants::PathLogs[];
 #ifdef APPLE
@@ -66,6 +67,9 @@ constexpr char Constants::DefaultXmlrpcUri[];
 constexpr char Constants::DefaultConferenceURI[];
 constexpr char Constants::DefaultLimeServerURL[];
 constexpr char Constants::RemoteProvisioningURL[];
+constexpr char Constants::DefaultAssistantRegistrationUrl[];
+constexpr char Constants::DefaultAssistantLoginUrl[];
+constexpr char Constants::DefaultAssistantLogoutUrl[];
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
 constexpr char Constants::H264Description[];
@@ -103,6 +107,10 @@ constexpr int Constants::DefaultExpires;
 constexpr char Constants::DownloadUrl[];
 constexpr char Constants::VersionCheckUrl[];
 constexpr char Constants::PasswordRecoveryUrl[];
+constexpr char Constants::CguUrl[];
+constexpr char Constants::PrivatePolicyUrl[];
+constexpr char Constants::ContactUrl[];
+constexpr char Constants::TranslationUrl[];
 
 
 constexpr char Constants::LinphoneBZip2_exe[];

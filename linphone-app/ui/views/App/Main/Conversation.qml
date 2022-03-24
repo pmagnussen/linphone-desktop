@@ -178,7 +178,7 @@ ColumnLayout  {
 								
 							}
 							onUsernameClicked: {
-													if(!conversation.hasBeenLeft) {
+													if(!conversation.isReadOnly) {
 														usernameEdit.visible = !usernameEdit.visible
 														usernameEdit.forceActiveFocus()
 													}
@@ -198,7 +198,7 @@ ColumnLayout  {
 						iconSize:30
 						MouseArea{
 							anchors.fill:parent
-							visible: !conversation.hasBeenLeft
+							visible: !conversation.isReadOnly
 							onClicked : {
 								window.detachVirtualWindow()
 								window.attachVirtualWindow(Qt.resolvedUrl('Dialogs/InfoEncryption.qml')
@@ -294,7 +294,7 @@ ColumnLayout  {
 						backgroundRadius: 1000
 						colorSet: ConversationStyle.bar.actions.groupChat
 						
-						visible: SettingsModel.outgoingCallsEnabled && conversation.haveMoreThanOneParticipants && conversation.haveLessThanMinParticipantsForCall && !conversation.hasBeenLeft
+						visible: SettingsModel.outgoingCallsEnabled && conversation.haveMoreThanOneParticipants && conversation.haveLessThanMinParticipantsForCall && !conversation.isReadOnly
 						
 						onClicked: Logic.openConferenceManager({chatRoomModel:conversation.chatRoomModel, autoCall:true})
 						//: "Call all chat room's participants" : tooltip on a button for calling all participant in the current chat room
@@ -455,7 +455,7 @@ ColumnLayout  {
 			anchors.leftMargin: 50
 			anchors.verticalCenter: parent.verticalCenter
 			//anchors.horizontalCenter: parent.horizontalCenter
-			visible: chatArea.tryingToLoadMoreEntries
+			running: chatArea.tryingToLoadMoreEntries
 		}
 			
 		// -------------------------------------------------------------------------
@@ -492,25 +492,34 @@ ColumnLayout  {
 			anchors.leftMargin: 50
 			anchors.topMargin: 10
 			anchors.bottomMargin: 10
-			visible: false
+			visible: true
 			
 			TextField {
 				id:searchBar
 				anchors {
 					fill: parent
-					margins: 1
+					margins: 0
 				}
 				width: parent.width-14
 				icon: 'close_custom'
 				overwriteColor: ConversationStyle.filters.iconColor
-				persistentIcon: true
+				showWhenEmpty: false
 				//: 'Search in messages' : this is a placeholder when searching something in the timeline list
 				placeholderText: qsTr('searchMessagesPlaceholder')
 				
-				onTextChanged: chatRoomProxyModel.filterText = text
+				onTextChanged: searchDelay.restart()
 				onIconClicked: {
-					searchView.visible = false
-					chatRoomProxyModel.filterText = ''
+					searchView.text = ''
+				}
+				font.pointSize: ConversationStyle.filters.pointSize
+				
+				Timer{
+					id: searchDelay
+					interval: 500
+					running: false
+					onTriggered: if( searchView.visible){
+						chatRoomProxyModel.filterText = searchBar.text
+					}
 				}
 			}
 			
@@ -526,7 +535,6 @@ ColumnLayout  {
 		id:chatArea
 		Layout.fillHeight: true
 		Layout.fillWidth: true
-		
 		proxyModel: ChatRoomProxyModel {
 			id: chatRoomProxyModel
 			

@@ -7,6 +7,11 @@
         <source>ok</source>
         <translation>OK</translation>
     </message>
+    <message>
+        <source>aboutTranslation</source>
+        <extracomment>&apos;Help us translate %1&apos; : %1 is the application name</extracomment>
+        <translation>Contribuer aux traductions</translation>
+    </message>
 </context>
 <context>
     <name>ActivateAppSipAccountWithEmail</name>
@@ -108,6 +113,10 @@
         <source>commandLineOptionCallArg</source>
         <translation>adresse SIP</translation>
     </message>
+    <message>
+        <source>checkForUpdates</source>
+        <translation>Vérifier les mises à jour</translation>
+    </message>
 </context>
 <context>
     <name>AssistantAbstractView</name>
@@ -142,6 +151,11 @@
         <source>createAppSipAccount</source>
         <translation>CRÉER UN COMPTE %1</translation>
     </message>
+    <message>
+        <source>homeCgu</source>
+        <extracomment>&apos;I accept %1&apos;s %2terms of use%3 and %4privacy policy%5&apos; : where %1 is the vendor name and other %n are internal keywords that encapsulate links.</extracomment>
+        <translation>J&apos;accepte %2les conditions d&apos;utilisation%3 et %4la politique de confidentialité%5 de %1</translation>
+    </message>
 </context>
 <context>
     <name>AssistantModel</name>
@@ -159,7 +173,7 @@
     </message>
     <message>
         <source>usernameStatusInvalidCharacters</source>
-        <translation>Caractères invalides détectés (regex : `%1`).</translation>
+        <translation>Caractères invalides détectés (regex&#x202f;: `%1`).</translation>
     </message>
     <message>
         <source>usernameStatusInvalid</source>
@@ -175,7 +189,7 @@
     </message>
     <message>
         <source>passwordStatusInvalidCharacters</source>
-        <translation>Caractères invalides détectés (regex : `%1`).</translation>
+        <translation>Caractères invalides détectés (regex&#x202f;: `%1`).</translation>
     </message>
     <message>
         <source>passwordStatusMissingCharacters</source>
@@ -474,6 +488,11 @@ URL du serveur non configurée.</translation>
         <extracomment>&quot;Selection copied to clipboard&quot; : when a user copy a text from the menu, this message show up.</extracomment>
         <translation>La sélection a été copiée dans le presse-papier</translation>
     </message>
+    <message>
+        <source>forwardDialogTitle</source>
+        <extracomment>&apos;Choose where to forward the message&apos; : Dialog title for choosing where to forward the current message.</extracomment>
+        <translation>Choisir où faire suivre le message</translation>
+    </message>
 </context>
 <context>
     <name>ChatDeliveries</name>
@@ -500,6 +519,14 @@ URL du serveur non configurée.</translation>
         <extracomment>&quot;%1 have nothing received&quot; Little message to indicate the state of a message</extracomment>
         <translation>%1 n&apos;a encore rien reçu</translation>
         <extra-Context>%1 is someone. The state is that the message hasn&apos;t been delivered.</extra-Context>
+    </message>
+</context>
+<context>
+    <name>ChatForwardMessage</name>
+    <message>
+        <source>Forwarded</source>
+        <extracomment>&apos;Forwarded&apos; : Header on a message that contains a forward.</extracomment>
+        <translation>Transféré</translation>
     </message>
 </context>
 <context>
@@ -533,6 +560,16 @@ URL du serveur non configurée.</translation>
         <extracomment>&apos;Hide delivery status&apos; : Item menu that lead to IMDN of a message</extracomment>
         <translation>Cacher le statut du message</translation>
     </message>
+    <message>
+        <source>menuForward</source>
+        <extracomment>&apos;Forward&apos; : Forward a message from menu</extracomment>
+        <translation>Transférer</translation>
+    </message>
+    <message>
+        <source>menuReply</source>
+        <extracomment>&apos;Reply&apos; : Reply to a message from menu</extracomment>
+        <translation>Répondre</translation>
+    </message>
 </context>
 <context>
     <name>ChatNoticeModel</name>
@@ -563,6 +600,22 @@ URL du serveur non configurée.</translation>
             <numerusform>%1 semaine</numerusform>
             <numerusform>%1 semaines</numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>ChatReplyMessage</name>
+    <message>
+        <source>headerReply</source>
+        <extracomment>&apos;Reply&apos; : Header on a message that contains a reply.</extracomment>
+        <translation>Réponse</translation>
+    </message>
+</context>
+<context>
+    <name>ChatReplyPreview</name>
+    <message>
+        <source>titleReply</source>
+        <extracomment>&apos;Reply to %1&apos; : Title for a reply preview to know who said what.</extracomment>
+        <translation>Répondre à %1</translation>
     </message>
 </context>
 <context>
@@ -978,7 +1031,7 @@ URL du serveur non configurée.</translation>
     <message>
         <source>ephemeralNotInConference!</source>
         <extracomment>&apos;Ephemeral message is only supported in conference based chat room!&apos;</extracomment>
-        <translation>Les messages éphémères ne sont disponibles que pour une conversation définie en mode conférence !</translation>
+        <translation>Les messages éphémères ne sont disponibles que pour une conversation définie en mode conférence&#x202f;!</translation>
         <extra-Context>Warning about not being in conference based chat room.</extra-Context>
     </message>
     <message>
@@ -1071,6 +1124,11 @@ URL du serveur non configurée.</translation>
     <message>
         <source>remoteProvisioningUpdateDescription</source>
         <translation>Voulez-vous redémarrer maintenant pour prendre en compte ces modifications ?</translation>
+    </message>
+    <message>
+        <source>lastProvisioningFailed</source>
+        <extracomment>&apos;Last remote provisioning failed&apos; : Test to warn the user that the last fetch of remote provisioning has failed.</extracomment>
+        <translation>La dernière configuration n&apos;a pas pu être récupérée</translation>
     </message>
 </context>
 <context>
@@ -1368,6 +1426,11 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
         <source>quit</source>
         <translation>Quitter</translation>
     </message>
+    <message>
+        <source>checkForUpdates</source>
+        <extracomment>&apos;Check for updates&apos; : Item menu for checking updates</extracomment>
+        <translation>Vérifier les mises à jour</translation>
+    </message>
 </context>
 <context>
     <name>ManageAccounts</name>
@@ -1537,6 +1600,14 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
         <extracomment>&apos;Ephemeral messages have been updated: %1&apos; : Little message to show on the event when ephemeral has been updated. %1 is a date time</extracomment>
         <translation>Délai d’expiration des messages : %1</translation>
     </message>
+    <message numerus="yes">
+        <source>unreadMessageNotice</source>
+        <extracomment>&apos;%1 unread messages&apos; : Little message to show on an event where unread messages begin.</extracomment>
+        <translation>
+            <numerusform>%1 message non lu</numerusform>
+            <numerusform>%1 messages non lus</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>Notifier</name>
@@ -1585,6 +1656,14 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     <message>
         <source>messageDelivered</source>
         <translation>Délivré</translation>
+    </message>
+</context>
+<context>
+    <name>ParticipantsDevices</name>
+    <message>
+        <source>conversationDevicesTitle</source>
+        <extracomment>&apos;Conversation&apos;s devices&apos; : Title of window that show all devices</extracomment>
+        <translation>Liste des appareils</translation>
     </message>
 </context>
 <context>
@@ -1881,6 +1960,26 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
         <extracomment>&apos;Call when registered&apos; : Label on switch to choose if calls are make when the current proxy is registered</extracomment>
         <translation>Appeler seulement si enregistré</translation>
     </message>
+    <message>
+        <source>chatNotificationsEnabledLabel</source>
+        <extracomment>&apos;Enable notifications&apos;: settings label for enabling notifications.</extracomment>
+        <translation>Activer les notifications</translation>
+    </message>
+    <message>
+        <source>AutoDownload</source>
+        <extracomment>&apos;Auto download&apos; : Label for a slider about auto download mode</extracomment>
+        <translation type="unfinished">Téléchargement automatique</translation>
+    </message>
+    <message>
+        <source>autoDownloadNever</source>
+        <extracomment>&apos;Never&apos; : auto download mode description for deactivated feature.</extracomment>
+        <translation type="unfinished">Jamais</translation>
+    </message>
+    <message>
+        <source>autoDownloadAlways</source>
+        <extracomment>&apos;Always&apos; : auto download mode description for activated feature without any constraints.</extracomment>
+        <translation type="unfinished">Toujours</translation>
+    </message>
 </context>
 <context>
     <name>SettingsLdap</name>
@@ -1917,7 +2016,7 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     </message>
     <message>
         <source>serverTooltip</source>
-        <translation>Serveur LDAP. ie : ldap:// pour un serveur local ou ldap://ldap.example.org/</translation>
+        <translation>Serveur LDAP. ie&#x202f;: ldap:// pour un serveur local ou ldap://ldap.example.org/</translation>
     </message>
     <message>
         <source>bindDNLabel</source>
@@ -2233,6 +2332,11 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
         <source>assistantSupportsPhoneNumbersLabel</source>
         <translation>Supporter les numéros de tél.</translation>
     </message>
+    <message>
+        <source>defaultDeviceNameLabel</source>
+        <extracomment>&apos;Device Name&apos; : Label for setting the device name.</extracomment>
+        <translation>Nom de l&apos;appareil</translation>
+    </message>
 </context>
 <context>
     <name>SettingsSipAccountsEdit</name>
@@ -2529,17 +2633,27 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     <message>
         <source>mipmapLabel</source>
         <extracomment>&apos;Enable Mipmap&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Activer le Mipmap</translation>
     </message>
     <message>
         <source>mipmapTooltip1</source>
         <extracomment>&apos;This property holds whether the image uses mipmap filtering when scaled or transformed.&apos; : first line of a tooltip about Mipmap mode.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Cette propriété détermine si les images doivent utiliser un filtre Mipmap lorsqu&apos;elles sont remises à l’échelle ou transformée.</translation>
     </message>
     <message>
         <source>mipmapTooltip2</source>
         <extracomment>&apos;Mipmap filtering gives better visual quality when scaling down compared to smooth, but it may come at a performance cost (both when initializing the image and during rendering).&apos; : Second line of a tooltip about Mipmap mode.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lorsque les images sont rétrécies, un filtre Mipmap a une meilleure qualité visuelle par rapport à un lissage standard mais nécessite plus de calculs lors de l&apos;initialisation des images et pendant le rendu.</translation>
+    </message>
+    <message>
+        <source>minimalTimelineFilterLabel</source>
+        <extracomment>&apos;Minimal Timeline filter&apos;</extracomment>
+        <translation>Filtre minimaliste de la chronologie</translation>
+    </message>
+    <message>
+        <source>minimalTimelineFilterTooltip</source>
+        <extracomment>&apos;Show a minimal version of what to display in timeline.&apos; :</extracomment>
+        <translation>Afficher une version minimaliste dans la zone de recherche des chronologies.</translation>
     </message>
 </context>
 <context>
@@ -2645,6 +2759,28 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     </message>
 </context>
 <context>
+    <name>SipAddressDialog</name>
+    <message>
+        <source>cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>contactsSearchPlaceholder</source>
+        <extracomment>&apos;Search in contacts&apos; : Placeholder for a search a contact</extracomment>
+        <translation>Rechercher un contact</translation>
+    </message>
+    <message>
+        <source>contactsSearchTooltip</source>
+        <extracomment>&apos;Search an address in your contacts or use a custom one.&apos; : tooltip</extracomment>
+        <translation>Rechercher une adresse dans les contacts ou utiliser une adresse personnalisée.</translation>
+    </message>
+    <message>
+        <source>timelineSelectionHeader</source>
+        <extracomment>&apos;Conversations&apos; : header for a selection in conversation list</extracomment>
+        <translation>Conversations</translation>
+    </message>
+</context>
+<context>
     <name>SmartSearchBar</name>
     <message>
         <source>addContact</source>
@@ -2670,38 +2806,58 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     </message>
     <message>
         <source>timelineFilterSimpleRooms</source>
-        <extracomment>&apos;Simple rooms&apos; : Filter item</extracomment>
+        <extracomment>&apos;Simple rooms&apos; : Filter item. Selecting it will show all secure chat groups (with more than one participant).</extracomment>
         <translation>Standards</translation>
-        <extra-Mode>Selecting it will show all simple rooms</extra-Mode>
     </message>
     <message>
         <source>timelineFilterSecureRooms</source>
-        <extracomment>&apos;Secure rooms&apos; : Filter item</extracomment>
+        <extracomment>&apos;Secure rooms&apos; : Filter item. Selecting it will show all secure rooms.</extracomment>
         <translation>Sécurisées</translation>
-        <extra-Mode>Selecting it will show all secure rooms</extra-Mode>
     </message>
     <message>
         <source>timelineFilterChatGroups</source>
-        <extracomment>&apos;Chat groups&apos; : Filter item</extracomment>
+        <extracomment>&apos;Chat groups&apos; : Filter item. Selecting it will show all chat groups (with more than one participant).</extracomment>
         <translation>Groupes standards</translation>
-        <extra-Mode>Selecting it will show all chat groups (with more than one participant)</extra-Mode>
-    </message>
-    <message>
-        <source>timelineFilterSecureChatGroups</source>
-        <extracomment>&apos;Secure Chat Groups&apos; : Filter item</extracomment>
-        <translation>Groupes sécurisés</translation>
-        <extra-Mode>Selecting it will show all secure chat groups (with more than one participant)</extra-Mode>
     </message>
     <message>
         <source>timelineFilterEphemerals</source>
-        <extracomment>&apos;Ephemerals&apos; : Filter item</extracomment>
+        <extracomment>&apos;Ephemerals&apos; : Filter item. Selecting it will show all chat rooms where the ephemeral mode has been enabled.</extracomment>
         <translation>Éphémères</translation>
-        <extra-Mode>Selecting it will show all chat rooms where the ephemeral mode has been enabled.</extra-Mode>
     </message>
     <message>
         <source>timelineSearchPlaceholderText</source>
         <extracomment>&apos;Search in the list&apos; : ths is a placeholder when searching something in the timeline list</extracomment>
         <translation>Rechercher dans la chronologie</translation>
+    </message>
+    <message>
+        <source>timelineFilterAllSecureLevelRooms</source>
+        <extracomment>&apos;All security levels&apos; : Filter item. Selecting it will not do any filter on security level.</extracomment>
+        <translation>Tous les niveaux de sécurité</translation>
+    </message>
+    <message>
+        <source>timelineFilterStandardRooms</source>
+        <extracomment>&apos;Standard rooms&apos; : Filter item. Selecting it will show all simple rooms.</extracomment>
+        <translation>Standards</translation>
+    </message>
+    <message>
+        <source>timelineFilterAnyChatRooms</source>
+        <extracomment>&apos;Any conversations&apos; : Filter item. Selecting it will not do any filter on the type of conversations.</extracomment>
+        <translation>Tous les types</translation>
+    </message>
+    <message>
+        <source>timelineFilterAnyEphemerals</source>
+        <extracomment>&apos;Ephemerals on/off&apos; : Filter item. Selecting it will not do any filter on ephemerals activation.</extracomment>
+        <translation>Éphémères on/off</translation>
+    </message>
+    <message>
+        <source>timelineFilterNoEphemerals</source>
+        <extracomment>&apos;No Ephemerals&apos; : Filter item. Selecting it will hide all chat rooms where the ephemeral mode has been enabled.</extracomment>
+        <translation>Sans éphémères</translation>
+    </message>
+    <message>
+        <source>timelineFilterConferences</source>
+        <extracomment>&apos;Conferences&apos; : Filter item. Selecting it will show all conferences.</extracomment>
+        <translation>Conférences</translation>
     </message>
 </context>
 <context>
@@ -2754,6 +2910,7 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     <name>UseOtherSipAccount</name>
     <message>
         <source>confirmAction</source>
+        <extracomment>&apos;Use&apos; : Popup confirmation for a form</extracomment>
         <translation>UTILISER</translation>
     </message>
     <message>
@@ -2783,6 +2940,26 @@ Cliquez ici : &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     <message>
         <source>addOtherSipAccountError</source>
         <translation>Impossible d&apos;ajouter ce compte.</translation>
+    </message>
+    <message>
+        <source>understandAction</source>
+        <extracomment>&apos;I understand&apos; : Popup confirmation for a warning</extracomment>
+        <translation>J&apos;ai compris</translation>
+    </message>
+    <message>
+        <source>warningFeatures</source>
+        <extracomment>&apos;Some features require a Linphone account, such as group messaging or ephemeral messaging.&apos; : Warning text about features.</extracomment>
+        <translation>Certaines fonctionnalités avancées comme les messages de groupe ou les messages éphémères nécessitent un compte Linphone.</translation>
+    </message>
+    <message>
+        <source>warningThirdParty</source>
+        <extracomment>&apos;These features are hidden when you register with a third party SIP account.&apos; : Warning text for using third party account.</extracomment>
+        <translation>Elles seront masquées dans l&apos;application si vous configurez un compte SIP tiers.</translation>
+    </message>
+    <message>
+        <source>warningContact</source>
+        <extracomment>&apos;To enable it in a commercial project, please contact us.&apos; : Warning text for contacting about enabling features.</extracomment>
+        <translation>Si vous souhaitez les activer pour un projet professionnel, contactez-nous.</translation>
     </message>
 </context>
 <context>

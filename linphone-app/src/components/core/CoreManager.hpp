@@ -34,6 +34,7 @@ class QTimer;
 class AbstractEventCountNotifier;
 class AccountSettingsModel;
 class CallsListModel;
+class ChatModel;
 class ChatRoomModel;
 class ChatRoomListModel;
 class ContactsListModel;
@@ -42,6 +43,7 @@ class CoreHandlers;
 class EventCountNotifier;
 class HistoryModel;
 class LdapListModel;
+class RecorderManager;
 class SettingsModel;
 class SipAddressesModel;
 class VcardModel;
@@ -54,6 +56,7 @@ class CoreManager : public QObject {
 	Q_PROPERTY(QString version READ getVersion CONSTANT)
 	Q_PROPERTY(QString downloadUrl READ getDownloadUrl CONSTANT)
 	Q_PROPERTY(int eventCount READ getEventCount NOTIFY eventCountChanged)
+	Q_PROPERTY(int callLogsCount READ getCallLogsCount NOTIFY callLogsCountChanged)
 	
 public:
 	bool started () const {
@@ -76,6 +79,7 @@ public:
 	//bool chatRoomModelExists (std::shared_ptr<linphone::ChatRoom> chatRoom);
 	
 	HistoryModel* getHistoryModel();
+	RecorderManager* getRecorderManager();
 	
 	// ---------------------------------------------------------------------------
 	// Video render lock.
@@ -138,6 +142,10 @@ public:
 	
 	AbstractEventCountNotifier * getEventCountNotifier();
 	
+	ChatModel * getChatModel() const{
+		return mChatModel;
+	}
+	
 	static CoreManager *getInstance ();
 	
 	// ---------------------------------------------------------------------------
@@ -155,16 +163,20 @@ public:
 	
 	Q_INVOKABLE void forceRefreshRegisters ();
 	void updateUnreadMessageCount();
+	void stateChanged(Qt::ApplicationState pState);
 	
 	Q_INVOKABLE void sendLogs () const;
 	Q_INVOKABLE void cleanLogs () const;
 	
+	int getCallLogsCount() const;
 	int getMissedCallCount(const QString &peerAddress, const QString &localAddress) const;// Get missed call count from a chat (useful for showing bubbles on Timelines)
 	int getMissedCallCountFromLocal(const QString &localAddress) const;// Get missed call count from a chat (useful for showing bubbles on Timelines)
 	
 	static bool isInstanciated(){return mInstance!=nullptr;}
 	
-	bool isLastRemoteProvisioningGood();
+	Q_INVOKABLE bool isLastRemoteProvisioningGood();
+	Q_INVOKABLE QString getUserAgent()const;
+	void updateUserAgent();
 	
 public slots:
 	void initCoreManager();
@@ -179,10 +191,12 @@ signals:
 	
 	void chatRoomModelCreated (const std::shared_ptr<ChatRoomModel> &chatRoomModel);
 	void historyModelCreated (HistoryModel *historyModel);
+	void recorderManagerCreated(RecorderManager *recorderModel);
 	
 	void logsUploaded (const QString &url);
 	
 	void eventCountChanged ();
+	void callLogsCountChanged();
 	
 private:
 	CoreManager (QObject *parent, const QString &configPath);
@@ -215,6 +229,7 @@ private:
 	ContactsImporterListModel *mContactsImporterListModel = nullptr;
 	TimelineListModel *mTimelineListModel = nullptr;
 	ChatRoomListModel *mChatRoomListModel = nullptr;
+	ChatModel *mChatModel = nullptr;
 	
 	SipAddressesModel *mSipAddressesModel = nullptr;
 	SettingsModel *mSettingsModel = nullptr;
@@ -227,6 +242,7 @@ private:
 	//QList<QPair<std::shared_ptr<linphone::ChatRoom>, std::weak_ptr<ChatRoomModel>>> mChatRoomModels;
 	HistoryModel * mHistoryModel = nullptr;
 	LdapListModel *mLdapListModel = nullptr;
+	RecorderManager* mRecorderManager = nullptr;
 	
 	QTimer *mCbsTimer = nullptr;
 	

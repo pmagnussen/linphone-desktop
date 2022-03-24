@@ -7,6 +7,11 @@
         <source>ok</source>
         <translation>OK</translation>
     </message>
+    <message>
+        <source>aboutTranslation</source>
+        <extracomment>&apos;Help us translate %1&apos; : %1 is the application name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ActivateAppSipAccountWithEmail</name>
@@ -108,6 +113,10 @@
         <source>commandLineOptionCallArg</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>checkForUpdates</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AssistantAbstractView</name>
@@ -141,6 +150,11 @@
     <message>
         <source>createAppSipAccount</source>
         <translation>OPRET EN %1 KONTO</translation>
+    </message>
+    <message>
+        <source>homeCgu</source>
+        <extracomment>&apos;I accept %1&apos;s %2terms of use%3 and %4privacy policy%5&apos; : where %1 is the vendor name and other %n are internal keywords that encapsulate links.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -474,6 +488,11 @@ Server url ikke konfigureret.</translation>
         <extracomment>&quot;Selection copied to clipboard&quot; : when a user copy a text from the menu, this message show up.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>forwardDialogTitle</source>
+        <extracomment>&apos;Choose where to forward the message&apos; : Dialog title for choosing where to forward the current message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ChatDeliveries</name>
@@ -500,6 +519,14 @@ Server url ikke konfigureret.</translation>
         <extracomment>&quot;%1 have nothing received&quot; Little message to indicate the state of a message</extracomment>
         <translation type="unfinished"></translation>
         <extra-Context>%1 is someone. The state is that the message hasn&apos;t been delivered.</extra-Context>
+    </message>
+</context>
+<context>
+    <name>ChatForwardMessage</name>
+    <message>
+        <source>Forwarded</source>
+        <extracomment>&apos;Forwarded&apos; : Header on a message that contains a forward.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -533,6 +560,16 @@ Server url ikke konfigureret.</translation>
         <extracomment>&apos;Hide delivery status&apos; : Item menu that lead to IMDN of a message</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>menuForward</source>
+        <extracomment>&apos;Forward&apos; : Forward a message from menu</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>menuReply</source>
+        <extracomment>&apos;Reply&apos; : Reply to a message from menu</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ChatNoticeModel</name>
@@ -563,6 +600,22 @@ Server url ikke konfigureret.</translation>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>ChatReplyMessage</name>
+    <message>
+        <source>headerReply</source>
+        <extracomment>&apos;Reply&apos; : Header on a message that contains a reply.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ChatReplyPreview</name>
+    <message>
+        <source>titleReply</source>
+        <extracomment>&apos;Reply to %1&apos; : Title for a reply preview to know who said what.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1072,6 +1125,11 @@ Server url ikke konfigureret.</translation>
         <source>remoteProvisioningUpdateDescription</source>
         <translation>Det er nødvendigt at genstarte applikationen. Vil du gøre det nu?</translation>
     </message>
+    <message>
+        <source>lastProvisioningFailed</source>
+        <extracomment>&apos;Last remote provisioning failed&apos; : Test to warn the user that the last fetch of remote provisioning has failed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HistoryView</name>
@@ -1368,6 +1426,11 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
         <source>quit</source>
         <translation>Stop</translation>
     </message>
+    <message>
+        <source>checkForUpdates</source>
+        <extracomment>&apos;Check for updates&apos; : Item menu for checking updates</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ManageAccounts</name>
@@ -1537,6 +1600,14 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
         <extracomment>&apos;Ephemeral messages have been updated: %1&apos; : Little message to show on the event when ephemeral has been updated. %1 is a date time</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <source>unreadMessageNotice</source>
+        <extracomment>&apos;%1 unread messages&apos; : Little message to show on an event where unread messages begin.</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>Notifier</name>
@@ -1585,6 +1656,14 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     <message>
         <source>messageDelivered</source>
         <translation>Afleveret</translation>
+    </message>
+</context>
+<context>
+    <name>ParticipantsDevices</name>
+    <message>
+        <source>conversationDevicesTitle</source>
+        <extracomment>&apos;Conversation&apos;s devices&apos; : Title of window that show all devices</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1879,6 +1958,26 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     <message>
         <source>waitRegistrationForCallLabel</source>
         <extracomment>&apos;Call when registered&apos; : Label on switch to choose if calls are make when the current proxy is registered</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>chatNotificationsEnabledLabel</source>
+        <extracomment>&apos;Enable notifications&apos;: settings label for enabling notifications.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>AutoDownload</source>
+        <extracomment>&apos;Auto download&apos; : Label for a slider about auto download mode</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>autoDownloadNever</source>
+        <extracomment>&apos;Never&apos; : auto download mode description for deactivated feature.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>autoDownloadAlways</source>
+        <extracomment>&apos;Always&apos; : auto download mode description for activated feature without any constraints.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2233,6 +2332,11 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
         <source>assistantSupportsPhoneNumbersLabel</source>
         <translation>Understøtter telefonnumre</translation>
     </message>
+    <message>
+        <source>defaultDeviceNameLabel</source>
+        <extracomment>&apos;Device Name&apos; : Label for setting the device name.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsSipAccountsEdit</name>
@@ -2541,6 +2645,16 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
         <extracomment>&apos;Mipmap filtering gives better visual quality when scaling down compared to smooth, but it may come at a performance cost (both when initializing the image and during rendering).&apos; : Second line of a tooltip about Mipmap mode.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>minimalTimelineFilterLabel</source>
+        <extracomment>&apos;Minimal Timeline filter&apos;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>minimalTimelineFilterTooltip</source>
+        <extracomment>&apos;Show a minimal version of what to display in timeline.&apos; :</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsVideo</name>
@@ -2645,6 +2759,28 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     </message>
 </context>
 <context>
+    <name>SipAddressDialog</name>
+    <message>
+        <source>cancel</source>
+        <translation type="unfinished">ANNULLER</translation>
+    </message>
+    <message>
+        <source>contactsSearchPlaceholder</source>
+        <extracomment>&apos;Search in contacts&apos; : Placeholder for a search a contact</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>contactsSearchTooltip</source>
+        <extracomment>&apos;Search an address in your contacts or use a custom one.&apos; : tooltip</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>timelineSelectionHeader</source>
+        <extracomment>&apos;Conversations&apos; : header for a selection in conversation list</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SmartSearchBar</name>
     <message>
         <source>addContact</source>
@@ -2670,37 +2806,57 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     </message>
     <message>
         <source>timelineFilterSimpleRooms</source>
-        <extracomment>&apos;Simple rooms&apos; : Filter item</extracomment>
+        <extracomment>&apos;Simple rooms&apos; : Filter item. Selecting it will show all secure chat groups (with more than one participant).</extracomment>
         <translation type="unfinished"></translation>
-        <extra-Mode>Selecting it will show all simple rooms</extra-Mode>
     </message>
     <message>
         <source>timelineFilterSecureRooms</source>
-        <extracomment>&apos;Secure rooms&apos; : Filter item</extracomment>
+        <extracomment>&apos;Secure rooms&apos; : Filter item. Selecting it will show all secure rooms.</extracomment>
         <translation type="unfinished"></translation>
-        <extra-Mode>Selecting it will show all secure rooms</extra-Mode>
     </message>
     <message>
         <source>timelineFilterChatGroups</source>
-        <extracomment>&apos;Chat groups&apos; : Filter item</extracomment>
+        <extracomment>&apos;Chat groups&apos; : Filter item. Selecting it will show all chat groups (with more than one participant).</extracomment>
         <translation type="unfinished"></translation>
-        <extra-Mode>Selecting it will show all chat groups (with more than one participant)</extra-Mode>
-    </message>
-    <message>
-        <source>timelineFilterSecureChatGroups</source>
-        <extracomment>&apos;Secure Chat Groups&apos; : Filter item</extracomment>
-        <translation type="unfinished"></translation>
-        <extra-Mode>Selecting it will show all secure chat groups (with more than one participant)</extra-Mode>
     </message>
     <message>
         <source>timelineFilterEphemerals</source>
-        <extracomment>&apos;Ephemerals&apos; : Filter item</extracomment>
+        <extracomment>&apos;Ephemerals&apos; : Filter item. Selecting it will show all chat rooms where the ephemeral mode has been enabled.</extracomment>
         <translation type="unfinished"></translation>
-        <extra-Mode>Selecting it will show all chat rooms where the ephemeral mode has been enabled.</extra-Mode>
     </message>
     <message>
         <source>timelineSearchPlaceholderText</source>
         <extracomment>&apos;Search in the list&apos; : ths is a placeholder when searching something in the timeline list</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>timelineFilterAllSecureLevelRooms</source>
+        <extracomment>&apos;All security levels&apos; : Filter item. Selecting it will not do any filter on security level.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>timelineFilterStandardRooms</source>
+        <extracomment>&apos;Standard rooms&apos; : Filter item. Selecting it will show all simple rooms.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>timelineFilterAnyChatRooms</source>
+        <extracomment>&apos;Any conversations&apos; : Filter item. Selecting it will not do any filter on the type of conversations.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>timelineFilterAnyEphemerals</source>
+        <extracomment>&apos;Ephemerals on/off&apos; : Filter item. Selecting it will not do any filter on ephemerals activation.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>timelineFilterNoEphemerals</source>
+        <extracomment>&apos;No Ephemerals&apos; : Filter item. Selecting it will hide all chat rooms where the ephemeral mode has been enabled.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>timelineFilterConferences</source>
+        <extracomment>&apos;Conferences&apos; : Filter item. Selecting it will show all conferences.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2754,6 +2910,7 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     <name>UseOtherSipAccount</name>
     <message>
         <source>confirmAction</source>
+        <extracomment>&apos;Use&apos; : Popup confirmation for a form</extracomment>
         <translation>BRUG</translation>
     </message>
     <message>
@@ -2783,6 +2940,26 @@ Klik her: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;
     <message>
         <source>addOtherSipAccountError</source>
         <translation>Umuligt at oprette kontoen.</translation>
+    </message>
+    <message>
+        <source>understandAction</source>
+        <extracomment>&apos;I understand&apos; : Popup confirmation for a warning</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>warningFeatures</source>
+        <extracomment>&apos;Some features require a Linphone account, such as group messaging or ephemeral messaging.&apos; : Warning text about features.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>warningThirdParty</source>
+        <extracomment>&apos;These features are hidden when you register with a third party SIP account.&apos; : Warning text for using third party account.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>warningContact</source>
+        <extracomment>&apos;To enable it in a commercial project, please contact us.&apos; : Warning text for contacting about enabling features.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
