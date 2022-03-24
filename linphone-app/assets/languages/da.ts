@@ -1161,32 +1161,8 @@ Server url ikke konfigureret.</translation>
         <translation>HVORDAN MAN BRUGER %1</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>Inviter dine venner på %1.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>INVITER DINE VENNER</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>Opret eller ret din %1 konto.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>KONTO ASSISTENT</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>ASSISTENT</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>Vis tips</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>INVITER</translation>
     </message>
 </context>
 <context>

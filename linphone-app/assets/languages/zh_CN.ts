@@ -1152,32 +1152,8 @@
         <translation>如何使用 %1</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>在 %1 上邀请您的朋友.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>邀请您的朋友</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>创建或管理您的 %1 账户.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>账户助手</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>助手</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>显示工具提示</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>邀请</translation>
     </message>
 </context>
 <context>

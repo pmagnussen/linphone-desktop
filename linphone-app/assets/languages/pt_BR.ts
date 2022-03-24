@@ -1161,32 +1161,8 @@ URL do servidor não configurado.</translation>
         <translation>COMO USAR %1</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>Convide seus amigos em %1.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>CONVIDE SEUS AMIGOS</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>Crie ou gerencie sua conta %1.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>ASSISTENTE DE CONTA</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>ASSISTENTE</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>Mostrar dicas de ferramentas</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>CONVIDAR</translation>
     </message>
 </context>
 <context>

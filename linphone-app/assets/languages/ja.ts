@@ -1152,32 +1152,8 @@
         <translation>%1 の使用方法</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>あなたの友達に%1を紹介.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>あなたの友人を招待する</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>%1アカウントを作成/管理する.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>アカウントアシスタント</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>アシスタント</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>ツールチップを表示</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>招待</translation>
     </message>
 </context>
 <context>

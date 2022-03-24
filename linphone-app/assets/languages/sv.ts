@@ -1161,32 +1161,8 @@ Serverwebbadressen är inte konfigurerad.</translation>
         <translation>HUR DU ANVÄNDER %1</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>Bjud in dina vänner på %1.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>BJUD IN DINA VÄNNER</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>Skapa eller hantera ditt %1-konto.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>KONTO ASSISTENT</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>ASSISTENT</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>Visa verktygstips</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>BJUD IN</translation>
     </message>
 </context>
 <context>

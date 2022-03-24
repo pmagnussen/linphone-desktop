@@ -1152,32 +1152,8 @@ A kiszolgáló URL-je nincs konfigurálva.</translation>
         <translation>Hogyan kell %1 használni</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>Hívd meg ismerőseidet a %1-ra.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>Hívd meg a ismerőseidet</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>A(z) %1 fiók létrehozása vagy kezelése.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>Fióksegéd</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>Segéd</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>Buboréksúgók megjelenítése</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>Meghívás</translation>
     </message>
 </context>
 <context>

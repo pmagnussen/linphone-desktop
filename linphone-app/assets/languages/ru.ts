@@ -1170,32 +1170,8 @@
         <translation>КАК ПОЛЬЗОВАТЬСЯ %1</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>Пригласите друзей использовать %1.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>ПРИГЛАСИТЕ ДРУЗЕЙ</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>Создание и управление аккаунтом %1.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>АССИСТЕНТ АККАУНТА</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>АССИСТЕНТ</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>Показывать подсказки</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>ПРИГЛАСИТЬ</translation>
     </message>
 </context>
 <context>

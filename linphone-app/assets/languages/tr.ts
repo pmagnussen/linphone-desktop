@@ -1152,32 +1152,8 @@ Sunucu url&apos;si yapılandırılmadı.</translation>
         <translation>%1 NASIL KULLANILIR</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>%1&apos;daki arkadaşlarınızı davet edin.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>ARKADAŞLARINIZI DAVET EDİN</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>%1 hesabı oluştur veya yönet.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>HESAP YARDIMCISI</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>YARDIMCI</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>Bilgi çubuklarını göster</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>DAVET ET</translation>
     </message>
 </context>
 <context>

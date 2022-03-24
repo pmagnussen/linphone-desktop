@@ -1161,32 +1161,8 @@ Server URL ist nicht konfiguriert.</translation>
         <translation>WIE MAN %1 NUTZT</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>Laden Sie Ihre Freunde bei %1 ein.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>FREUNDE EINLADEN</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>Erstellen oder verwalten Sie ihr %1 Konto.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>KONTOASSISTENT</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>ASSISTENT</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>Zeige Tooltips</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>EINLADEN</translation>
     </message>
 </context>
 <context>

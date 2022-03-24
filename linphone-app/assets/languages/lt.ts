@@ -1170,32 +1170,8 @@ Nesukonfigūruotas serverio url.</translation>
         <translation>KAIP NAUDOTIS %1</translation>
     </message>
     <message>
-        <source>inviteDescription</source>
-        <translation>Pakvieskite savo draugus į %1.</translation>
-    </message>
-    <message>
-        <source>inviteTitle</source>
-        <translation>PAKVIESTI SAVO DRAUGUS</translation>
-    </message>
-    <message>
-        <source>accountAssistantDescription</source>
-        <translation>Susikurkite ar tvarkykite savo %1 paskyrą.</translation>
-    </message>
-    <message>
-        <source>accountAssistantTitle</source>
-        <translation>PASKYRŲ PAGELBIKLIS</translation>
-    </message>
-    <message>
-        <source>assistantButton</source>
-        <translation>PAGELBIKLIS</translation>
-    </message>
-    <message>
         <source>showTooltips</source>
         <translation>Rodyti paaiškinimus</translation>
-    </message>
-    <message>
-        <source>inviteButton</source>
-        <translation>PAKVIESTI</translation>
     </message>
 </context>
 <context>
